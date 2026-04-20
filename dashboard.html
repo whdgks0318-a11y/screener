@@ -125,21 +125,65 @@ function normalizeUS(d){
   const stocks=d.stocks||[];
   const rsVals=stocks.map(s=>parseFloat(s.rs)||0).sort((a,b)=>a-b);
   const pct=v=>Math.round((rsVals.filter(x=>x<v).length/Math.max(rsVals.length,1))*100);
+
+  // Stage2 여부로 그룹 분류: Stage2 + 시장별
   const secMap={};
   stocks.forEach(s=>{
-    const sec=s.market_sector||s.sector||'Other';
+    const mkt=s.market||'US';
+    const stage=s.is_stage2?'Stage2':'Non-Stage2';
+    const sec=mkt+' · '+stage;
     if(!secMap[sec]) secMap[sec]={sector:sec,sector_kr:sec,stocks:[]};
-    secMap[sec].stocks.push({ticker:s.ticker,name:s.name,market:s.market,rs_score:pct(parseFloat(s.rs)||0),ibd_rs:pct(parseFloat(s.rs)||0),price:s.price});
+    secMap[sec].stocks.push({
+      ticker:s.ticker,name:s.name,market:s.market,
+      rs_score:pct(parseFloat(s.rs)||0),ibd_rs:pct(parseFloat(s.rs)||0),
+      price:s.price
+    });
   });
+
   const sectors=Object.values(secMap).map(sec=>{
     const scores=sec.stocks.map(x=>x.rs_score);
     const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):0;
-    return {sector:sec.sector,sector_kr:sec.sector_kr,avg_rs_score:avg,avg_ibd_rs:avg,max_rs_score:Math.max(...scores,0),stock_count:sec.stocks.length,strength:avg>=75?'strong':avg>=50?'neutral':'weak',top_stocks:sec.stocks.sort((a,b)=>b.rs_score-a.rs_score).slice(0,5)};
+    return {
+      sector:sec.sector,sector_kr:sec.sector_kr,
+      avg_rs_score:avg,avg_ibd_rs:avg,
+      max_rs_score:Math.max(...scores,0),
+      stock_count:sec.stocks.length,
+      strength:avg>=75?'strong':avg>=50?'neutral':'weak',
+      top_stocks:sec.stocks.sort((a,b)=>b.rs_score-a.rs_score).slice(0,5)
+    };
   }).sort((a,b)=>b.avg_rs_score-a.avg_rs_score);
-  const ns=stocks.map(s=>({ticker:s.ticker,name:s.name,market:s.market,sector:s.market_sector||s.sector||'—',sector_kr:s.market_sector||s.sector||'—',price:s.price,rs_score:pct(parseFloat(s.rs)||0),ibd_rs:pct(parseFloat(s.rs)||0),is_stage2:s.is_stage2,pattern_count:s.pattern_count||0}));
+
+  const ns=stocks.map(s=>({
+    ticker:s.ticker,name:s.name,market:s.market,
+    sector:(s.market||'US')+' · '+(s.is_stage2?'Stage2':'Non-Stage2'),
+    sector_kr:(s.market||'US')+' · '+(s.is_stage2?'Stage2':'Non-Stage2'),
+    price:s.price,
+    rs_score:pct(parseFloat(s.rs)||0),
+    ibd_rs:pct(parseFloat(s.rs)||0),
+    is_stage2:s.is_stage2,
+    pattern_count:s.pattern_count||0,
+    rs:s.rs, rs_now:s.rs_now, stage2:s.stage2,
+    w1:s.w1, w3:s.w3, w6:s.w6,
+    h52_pct:s.h52_pct, pass_dots:s.pass_dots
+  }));
+
   const strong=sectors.filter(x=>x.strength==='strong').length;
   const neutral=sectors.filter(x=>x.strength==='neutral').length;
-  return {meta:d.meta||{},summary:{total_stocks:ns.length,strong_sectors_count:strong,neutral_sectors_count:neutral,weak_sectors_count:sectors.length-strong-neutral,avg_rs_score:ns.length?Math.round(ns.reduce((a,b)=>a+b.rs_score,0)/ns.length):0},sectors,top_stocks:ns,all_stocks:ns};
+  const mktInfo=d.market||{};
+  return {
+    meta:d.meta||{},
+    market:mktInfo,
+    summary:{
+      total_stocks:ns.length,
+      strong_sectors_count:strong,
+      neutral_sectors_count:neutral,
+      weak_sectors_count:sectors.length-strong-neutral,
+      avg_rs_score:ns.length?Math.round(ns.reduce((a,b)=>a+b.rs_score,0)/ns.length):0,
+      stage2_count:ns.filter(x=>x.is_stage2).length,
+      bullish:mktInfo.signal==='Bullish'
+    },
+    sectors,top_stocks:ns,all_stocks:ns
+  };
 }
 
 async function loadData(m){
@@ -175,14 +219,17 @@ function render(m){
   const d=S[m].data, s=S[m], sum=d.summary||{}, isKr=m==='kr';
   const acc=isKr?'var(--accent-kr)':'var(--accent-us)';
   const demo=d.meta?.demo?`<div class="summary-card" style="border-color:var(--yellow)"><div class="label">⚠️ 모드</div><div class="value val-yellow" style="font-size:16px">데모</div><div class="sub">API 미연결</div></div>`:'';
+  const usExtra = !isKr ? `
+    <div class="summary-card"><div class="label">📶 시장 신호</div><div class="value ${sum.bullish?'val-green':'val-red'}" style="font-size:16px">${sum.bullish?'🟢 강세장':'🔴 약세장'}</div><div class="sub">${d.market?.ndfi_pct||'—'}% above MA</div></div>
+    <div class="summary-card"><div class="label">🏆 Stage2 종목</div><div class="value val-green">${(sum.stage2_count||0).toLocaleString()}</div><div class="sub">진입 후보</div></div>` : '';
   document.getElementById(m+'-content').innerHTML=`
     <div class="summary-grid">
       <div class="summary-card"><div class="label">📊 분석 종목</div><div class="value val-blue">${(sum.total_stocks||0).toLocaleString()}</div><div class="sub">${isKr?'KOSPI·KOSDAQ':'US Markets'}</div></div>
-      <div class="summary-card"><div class="label">🟢 강세 섹터</div><div class="value val-green">${sum.strong_sectors_count||0}</div><div class="sub">RS 75+</div></div>
-      <div class="summary-card"><div class="label">🟡 중립 섹터</div><div class="value val-yellow">${sum.neutral_sectors_count||0}</div><div class="sub">RS 50~74</div></div>
-      <div class="summary-card"><div class="label">🔴 약세 섹터</div><div class="value val-red">${sum.weak_sectors_count||0}</div><div class="sub">RS 50 미만</div></div>
+      <div class="summary-card"><div class="label">🟢 강세 그룹</div><div class="value val-green">${sum.strong_sectors_count||0}</div><div class="sub">RS 75+</div></div>
+      <div class="summary-card"><div class="label">🟡 중립 그룹</div><div class="value val-yellow">${sum.neutral_sectors_count||0}</div><div class="sub">RS 50~74</div></div>
+      <div class="summary-card"><div class="label">🔴 약세 그룹</div><div class="value val-red">${sum.weak_sectors_count||0}</div><div class="sub">RS 50 미만</div></div>
       <div class="summary-card"><div class="label">📈 평균 RS</div><div class="value" style="color:${acc}">${sum.avg_rs_score||'—'}</div><div class="sub">전체 종목</div></div>
-      ${demo}
+      ${usExtra}${demo}
     </div>
     <div class="sub-tabs">
       <div class="sub-tab ${s.tab==='sector'?'active':''}" onclick="setTab('${m}','sector')">🏭 섹터 분석</div>
