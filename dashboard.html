@@ -138,6 +138,73 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .scr-lo{background:#fdf0ee;color:#c0392b}
 .sec-filter-bar{display:flex;align-items:center;gap:6px;padding:10px 20px;background:#fff;border-bottom:1px solid #e0e0d8;flex-wrap:wrap}
 
+/* ══ 섹터 분석 (이미지 스타일) ══════════════════════════ */
+.sec-page{padding-bottom:60px}
+.sec-strength-banner{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:12px;font-weight:700;border-bottom:1px solid #e0e0d8}
+.sec-strength-banner.strong{background:#f0faf4;color:#1a5c1a;border-left:4px solid #1a8a4a}
+.sec-strength-banner.neutral{background:#fffbf0;color:#854F0B;border-left:4px solid #e6a817}
+.sec-strength-banner.weak{background:#fff5f5;color:#8b1a1a;border-left:4px solid #c0392b}
+.sec-banner-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px}
+
+/* 섹터 카드 (큰 카드) */
+.sec-big-card{background:#fff;border:1px solid #e0e0d8;border-radius:14px;margin:12px 20px;overflow:hidden}
+.sec-big-card.rank1{border-top:3px solid #e6a817}
+.sec-big-card.strong-card{border-left:4px solid #1a8a4a}
+.sec-big-card.neutral-card{border-left:4px solid #e6a817}
+.sec-big-card.weak-card{border-left:4px solid #c0392b}
+
+/* 카드 상단 뱃지 */
+.sec-rank-badge{display:flex;align-items:center;gap:8px;padding:10px 16px 0;font-size:11px;color:#aaa}
+.sec-rank-badge .gold{color:#e6a817;font-weight:700}
+.sec-rank-badge .badge-pill{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:600;background:#fff8e6;color:#854F0B;border:1px solid #e6a817}
+
+/* 카드 헤더 */
+.sec-card-head{padding:6px 16px 12px;border-bottom:1px solid #f0f0ea}
+.sec-card-title{font-size:22px;font-weight:800;color:#1a1a1a;margin-bottom:2px}
+.sec-rs-bar-wrap{height:4px;background:#eee;border-radius:2px;margin:8px 0;overflow:hidden}
+.sec-rs-bar{height:100%;border-radius:2px;background:#1a56db;transition:width .6s}
+
+/* 지표 행 */
+.sec-metrics{display:grid;grid-template-columns:repeat(5,1fr);padding:10px 16px;border-bottom:1px solid #f0f0ea;gap:4px}
+.sec-metric{text-align:right}
+.sec-metric-lbl{font-size:10px;color:#aaa;margin-bottom:2px}
+.sec-metric-val{font-size:16px;font-weight:700;color:#1a1a1a}
+.sec-metric-val.blue{color:#1a56db}
+.sec-metric-val.green{color:#1a8a4a}
+.sec-meta-row{padding:6px 16px;font-size:11px;color:#aaa;border-bottom:1px solid #f0f0ea;display:flex;justify-content:flex-end}
+
+/* 세부 업종 섹션 */
+.sec-sub-title{padding:10px 16px 6px;font-size:12px;font-weight:700;color:#555;display:flex;align-items:center;gap:6px}
+.sec-sub-list{}
+.sec-sub-row{padding:8px 16px;border-bottom:1px solid #f8f8f4;display:flex;align-items:flex-start;gap:12px}
+.sec-sub-row:last-child{border-bottom:none;padding-bottom:14px}
+.sec-sub-rank{font-size:12px;color:#aaa;font-weight:600;width:20px;flex-shrink:0;margin-top:2px}
+.sec-sub-body{flex:1}
+.sec-sub-name{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sec-sub-scores{font-size:11px;color:#aaa}
+.sec-sub-scores .rs-val{color:#1a56db;font-weight:700}
+.sec-sub-scores .ibd-val{color:#666}
+.sec-sub-tickers{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.sec-sub-ticker{font-size:11px;font-weight:700;padding:3px 8px;background:#f8f8f4;border:1px solid #e8e8e4;border-radius:5px;font-family:'Courier New',monospace;cursor:pointer}
+.sec-sub-ticker:hover{border-color:#1a56db;background:#f0f5ff}
+.sec-sub-ticker .tv{font-size:10px;font-weight:600;margin-left:3px}
+.tv-hi{color:#1a8a4a}.tv-mid{color:#888}.tv-lo{color:#aaa}
+
+/* 더보기 버튼 */
+.sec-more-btn{display:block;width:calc(100% - 32px);margin:0 16px 12px;padding:8px;border:1px dashed #e0e0d8;border-radius:8px;background:none;font-size:12px;color:#aaa;cursor:pointer;text-align:center}
+.sec-more-btn:hover{background:#f8f8f4;color:#666}
+
+/* 섹터 필터 탭 */
+.sec-filter-tabs{display:flex;gap:6px;padding:12px 20px;background:#fff;border-bottom:1px solid #e0e0d8;flex-wrap:wrap;align-items:center}
+.sec-ftab{font-size:12px;padding:5px 14px;border:1px solid #d5d5cc;border-radius:99px;cursor:pointer;background:#fff;color:#666;font-weight:500;white-space:nowrap}
+.sec-ftab:hover{background:#f0f0ea}
+.sec-ftab.on{font-weight:700}
+.sec-ftab.all.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.sec-ftab.strong.on{background:#eaf6ee;color:#1a5c1a;border-color:#1a8a4a}
+.sec-ftab.neutral.on{background:#fff8e6;color:#854F0B;border-color:#e6a817}
+.sec-ftab.weak.on{background:#fff0f0;color:#8b1a1a;border-color:#c0392b}
+
+
 /* ── 패턴 감지 ── */
 .pat-filter-bar{display:flex;gap:6px;padding:10px 20px;background:#fff;border-bottom:1px solid #e0e0d8;flex-wrap:wrap;align-items:center}
 .pat-filter-lbl{font-size:12px;color:#777;font-weight:600}
@@ -344,14 +411,14 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 
   <!-- US: 섹터 분석 -->
   <div class="sub-content" id="us-sub-sector">
-    <div class="sec-filter-bar" id="us-sec-filter-bar">
+    <div class="sec-filter-tabs">
       <span style="font-size:12px;color:#777;font-weight:600">필터</span>
-      <button class="fbtn on" id="us-sf-all"    onclick="setSecFilter('all',this,'us')">전체</button>
-      <button class="fbtn"    id="us-sf-strong" onclick="setSecFilter('strong',this,'us')">🟢 강세</button>
-      <button class="fbtn"    id="us-sf-neutral" onclick="setSecFilter('neutral',this,'us')">🟡 중립</button>
-      <button class="fbtn"    id="us-sf-weak"   onclick="setSecFilter('weak',this,'us')">🔴 약세</button>
+      <button class="sec-ftab all on" onclick="setSecFilter('all',this,'us')">전체</button>
+      <button class="sec-ftab strong" onclick="setSecFilter('strong',this,'us')">🟢 강세 (RS 75+)</button>
+      <button class="sec-ftab neutral" onclick="setSecFilter('neutral',this,'us')">🟡 중립 (RS 50~74)</button>
+      <button class="sec-ftab weak" onclick="setSecFilter('weak',this,'us')">🔴 약세 (RS 50 미만)</button>
     </div>
-    <div class="sector-grid" id="us-sector-grid">
+    <div id="us-sector-page" class="sec-page">
       <div class="empty">데이터를 불러오면 섹터 분석이 표시됩니다.</div>
     </div>
   </div>
@@ -427,14 +494,14 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 
   <!-- KR: 섹터 분석 -->
   <div class="sub-content" id="kr-sub-sector">
-    <div class="sec-filter-bar" id="kr-sec-filter-bar">
+    <div class="sec-filter-tabs">
       <span style="font-size:12px;color:#777;font-weight:600">필터</span>
-      <button class="fbtn on" id="kr-sf-all"     onclick="setSecFilter('all',this,'kr')">전체</button>
-      <button class="fbtn"    id="kr-sf-strong"  onclick="setSecFilter('strong',this,'kr')">🟢 강세</button>
-      <button class="fbtn"    id="kr-sf-neutral" onclick="setSecFilter('neutral',this,'kr')">🟡 중립</button>
-      <button class="fbtn"    id="kr-sf-weak"    onclick="setSecFilter('weak',this,'kr')">🔴 약세</button>
+      <button class="sec-ftab all on" onclick="setSecFilter('all',this,'kr')">전체</button>
+      <button class="sec-ftab strong" onclick="setSecFilter('strong',this,'kr')">🟢 강세 (RS 75+)</button>
+      <button class="sec-ftab neutral" onclick="setSecFilter('neutral',this,'kr')">🟡 중립 (RS 50~74)</button>
+      <button class="sec-ftab weak" onclick="setSecFilter('weak',this,'kr')">🔴 약세 (RS 50 미만)</button>
     </div>
-    <div class="sector-grid" id="kr-sector-grid">
+    <div id="kr-sector-page" class="sec-page">
       <div class="empty">데이터를 불러오면 섹터 분석이 표시됩니다.</div>
     </div>
   </div>
@@ -701,62 +768,160 @@ function krRowHTML(s){
 function setSecFilter(f,el,mkt){
   if(mkt==='us') US.secFilter=f;
   else KR.secFilter=f;
-  document.querySelectorAll(`#${mkt}-sec-filter-bar .fbtn`).forEach(b=>b.classList.remove('on'));
+  el.closest('.sec-filter-tabs').querySelectorAll('.sec-ftab').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
   mkt==='us'?renderUSSectors():renderKRSectors();
 }
 
 function renderUSSectors(){
-  // US는 stock.market 기준으로 섹터 집계
+  // US: market 기준으로 섹터 집계 (sector 필드 없을 경우)
   const secMap={};
   US.data.forEach(s=>{
-    const sec=s.market||'US';
+    const sec=s.sector||s.market||'US';
     const score=s.rs||0;
-    if(!secMap[sec]) secMap[sec]={sector:sec,sector_kr:sec,scores:[],stocks:[]};
+    if(!secMap[sec]) secMap[sec]={sector:sec,sector_kr:sec,scores:[],stocks:[],rs_nows:[],ibd_scores:[]};
     secMap[sec].scores.push(score);
-    secMap[sec].stocks.push({ticker:s.ticker,name:s.name,rs_score:score,ibd_rs:score,price:s.price});
+    secMap[sec].rs_nows.push(s.rs_now||score);
+    secMap[sec].ibd_scores.push(score);
+    secMap[sec].stocks.push({ticker:s.ticker,name:s.name,rs_score:score,ibd_rs:s.rs_now||score,price:s.price,acc:s.acc,acc2:s.acc2});
   });
   const sectors=Object.values(secMap).map(sec=>{
-    const avg=sec.scores.length?Math.round(sec.scores.reduce((a,b)=>a+b,0)/sec.scores.length):0;
-    return{sector:sec.sector,sector_kr:sec.sector_kr,avg_rs_score:avg,max_rs_score:Math.max(...sec.scores,0),stock_count:sec.scores.length,strength:avg>=75?'strong':avg>=50?'neutral':'weak',top_stocks:sec.stocks.sort((a,b)=>b.rs_score-a.rs_score).slice(0,5)};
+    const avg=Math.round(sec.scores.reduce((a,b)=>a+b,0)/Math.max(sec.scores.length,1));
+    const avgNow=Math.round(sec.rs_nows.reduce((a,b)=>a+b,0)/Math.max(sec.rs_nows.length,1));
+    return{
+      sector:sec.sector,sector_kr:sec.sector_kr,
+      avg_rs_score:avg,avg_rs_now:avgNow,
+      avg_ibd_rs:avg,max_rs_score:Math.max(...sec.scores,0),
+      stock_count:sec.scores.length,
+      strength:avg>=75?'strong':avg>=50?'neutral':'weak',
+      top_stocks:sec.stocks.sort((a,b)=>b.rs_score-a.rs_score)
+    };
   }).sort((a,b)=>b.avg_rs_score-a.avg_rs_score);
-  renderSectorGrid('us-sector-grid', sectors, US.secFilter);
+  renderSectorPage('us-sector-page', sectors, US.secFilter, 'us');
 }
 
 function renderKRSectors(){
-  const sectors=KR.sectors||[];
-  renderSectorGrid('kr-sector-grid', sectors, KR.secFilter);
+  const sectors=(KR.sectors||[]).map(sec=>{
+    // sub_sectors가 없으면 top_stocks를 하나의 서브섹터로 취급
+    return {...sec, sub_sectors: sec.sub_sectors || null};
+  });
+  renderSectorPage('kr-sector-page', sectors, KR.secFilter, 'kr');
 }
 
-function renderSectorGrid(gridId, sectors, filter){
-  const el=document.getElementById(gridId);
-  const list=sectors.filter(s=>filter==='all'||s.strength===filter);
-  if(!list.length){el.innerHTML='<div class="empty">섹터 데이터가 없습니다.</div>';return;}
-  el.innerHTML=list.map((sec,i)=>{
-    const rank=sectors.indexOf(sec)+1;
-    const nameKr=sec.sector_kr||sec.sector;
-    const nameEn=sec.sector!==sec.sector_kr?sec.sector:'';
-    const tops=(sec.top_stocks||[]).slice(0,5);
-    const sc=sec.avg_rs_score>=75?'#1a8a4a':sec.avg_rs_score>=50?'#854F0B':'#c0392b';
-    const stks=tops.map(st=>{
-      const cls=st.rs_score>=75?'scr-hi':st.rs_score>=50?'scr-mid':'scr-lo';
-      return`<div class="stk-chip"><span class="tkr">${st.ticker}</span><span class="scr ${cls}">${st.rs_score}</span></div>`;
-    }).join('');
-    return`<div class="sec-card ${sec.strength}">
-      <div class="sec-head">
-        <div><div class="sec-name">#${rank} ${nameKr}</div>${nameEn?`<div class="sec-en">${nameEn}</div>`:''}</div>
-        <div><div class="sec-score" style="color:${sc}">${sec.avg_rs_score}</div><div class="sec-score-lbl">RS Score</div></div>
-      </div>
-      <div class="sec-bar-bg"><div class="sec-bar-fill" style="width:${Math.min(100,sec.avg_rs_score||0)}%"></div></div>
-      <div class="sec-meta">
-        <span>IBD <strong>${sec.avg_ibd_rs||'—'}</strong></span>
-        <span>최고 <strong>${sec.max_rs_score||'—'}</strong></span>
-        <span>종목 <strong>${sec.stock_count}</strong>개</span>
-      </div>
-      <div class="sec-stocks">${stks}</div>
+function renderSectorPage(pageId, sectors, filter, mkt){
+  const el=document.getElementById(pageId);
+  const filtered=sectors.filter(s=>filter==='all'||s.strength===filter);
+  if(!filtered.length){el.innerHTML='<div class="empty">해당 섹터가 없습니다.</div>';return;}
+
+  // 강세/중립/약세 그룹별 분리
+  const groups=[
+    {key:'strong',label:'강세 섹터 (RS Line 75+) — 진입 우선순위',dot:'#1a8a4a',items:filtered.filter(s=>s.strength==='strong')},
+    {key:'neutral',label:'중립 섹터 (RS Line 50~74) — 관찰 대상',dot:'#e6a817',items:filtered.filter(s=>s.strength==='neutral')},
+    {key:'weak',label:'약세 섹터 (RS Line 50 미만) — 진입 금지',dot:'#c0392b',items:filtered.filter(s=>s.strength==='weak')},
+  ];
+
+  let html='';
+  groups.forEach(g=>{
+    if(!g.items.length)return;
+    html+=`<div class="sec-strength-banner ${g.key}">
+      <span><span class="sec-banner-dot" style="background:${g.dot}"></span>${g.label}</span>
+      <span>${g.items.length}개 섹터</span>
     </div>`;
-  }).join('');
+    g.items.forEach((sec,i)=>{
+      const rank=sectors.indexOf(sec)+1;
+      const nameKr=sec.sector_kr||sec.sector;
+      const nameEn=(sec.sector&&sec.sector!==sec.sector_kr)?sec.sector:'';
+      const rsColor=sec.avg_rs_score>=75?'#1a56db':sec.avg_rs_score>=50?'#e6a817':'#c0392b';
+      const isFirst=rank===1&&g.key==='strong';
+      const cardClass=`sec-big-card ${g.key}-card${isFirst?' rank1':''}`;
+      const barW=Math.min(100,sec.avg_rs_score||0);
+
+      // 상위 종목 → 서브섹터처럼 표현 (ticker들을 RS 점수 내림차순으로)
+      const tops=(sec.top_stocks||[]).slice(0,10);
+
+      // 서브섹터가 있으면 서브섹터 리스트, 없으면 종목 직접 표시
+      const subSectors=sec.sub_sectors;
+      let subHTML='';
+
+      if(subSectors&&subSectors.length){
+        // 서브섹터 리스트
+        const showAll=sec._expanded||false;
+        const display=showAll?subSectors:subSectors.slice(0,5);
+        subHTML=display.map((sub,si)=>{
+          const tickers=(sub.tickers||sub.top_stocks||[]).slice(0,6);
+          const tickerHTML=tickers.map(t=>{
+            const ticker=t.ticker||t;
+            const score=t.rs_score||t.rs||'';
+            const cls=score>=90?'tv-hi':score>=75?'tv-mid':'tv-lo';
+            return`<span class="sec-sub-ticker">${ticker}<span class="tv ${cls}">${score}</span></span>`;
+          }).join('');
+          return`<div class="sec-sub-row">
+            <div class="sec-sub-rank">#${si+1}</div>
+            <div class="sec-sub-body">
+              <div class="sec-sub-name">
+                ${sub.name||sub.sector||''}
+                <span class="sec-sub-scores">RS Line <span class="rs-val">${sub.avg_rs_score||sub.rs||'—'}</span> · IBD <span class="ibd-val">${sub.avg_ibd_rs||'—'}</span> · ${sub.stock_count||tickers.length}개</span>
+              </div>
+              <div class="sec-sub-tickers">${tickerHTML}</div>
+            </div>
+          </div>`;
+        }).join('');
+        if(subSectors.length>5&&!showAll){
+          subHTML+=`<button class="sec-more-btn" onclick="expandSector('${pageId}','${nameKr}')">+ ${subSectors.length-5}개 업종 더 보기</button>`;
+        }
+      } else if(tops.length){
+        // 종목 직접 표시 (서브섹터 없을 때)
+        const tickerHTML=tops.map(t=>{
+          const cls=t.rs_score>=90?'tv-hi':t.rs_score>=75?'tv-mid':'tv-lo';
+          return`<span class="sec-sub-ticker">${t.ticker}<span class="tv ${cls}">${t.rs_score||''}</span></span>`;
+        }).join('');
+        subHTML=`<div class="sec-sub-row">
+          <div class="sec-sub-rank">#1</div>
+          <div class="sec-sub-body">
+            <div class="sec-sub-name">${nameKr} 상위 종목
+              <span class="sec-sub-scores">RS <span class="rs-val">${sec.avg_rs_score}</span> · ${sec.stock_count}개</span>
+            </div>
+            <div class="sec-sub-tickers">${tickerHTML}</div>
+          </div>
+        </div>`;
+      }
+
+      html+=`<div class="${cardClass}" data-sector="${nameKr}">
+        <div class="sec-rank-badge">
+          ${isFirst?'<span class="gold">🥇 RS Line 1위 · 최상위 강세 섹터</span>':'<span>#'+rank+' 섹터</span>'}
+          ${g.key==='strong'?'<span class="badge-pill">진입 우선순위</span>':g.key==='neutral'?'<span class="badge-pill" style="background:#fff8e6;color:#854F0B;border-color:#e6a817">관찰 대상</span>':'<span class="badge-pill" style="background:#fff0f0;color:#8b1a1a;border-color:#c0392b">진입 금지</span>'}
+        </div>
+        <div class="sec-card-head">
+          <div class="sec-card-title">${nameKr}</div>
+          ${nameEn?`<div style="font-size:12px;color:#aaa">${nameEn}</div>`:''}
+          <div class="sec-rs-bar-wrap"><div class="sec-rs-bar" style="width:${barW}%;background:${rsColor}"></div></div>
+        </div>
+        <div class="sec-metrics">
+          <div class="sec-metric"><div class="sec-metric-lbl">RS Line 점수</div><div class="sec-metric-val blue">${sec.avg_rs_score}</div></div>
+          <div class="sec-metric"><div class="sec-metric-lbl">IBD RS 평균</div><div class="sec-metric-val">${sec.avg_ibd_rs||'—'}</div></div>
+          <div class="sec-metric"><div class="sec-metric-lbl">RS now 평균</div><div class="sec-metric-val">${sec.avg_rs_now||'—'}</div></div>
+          <div class="sec-metric"><div class="sec-metric-lbl">최고 RS</div><div class="sec-metric-val green">${sec.max_rs_score||'—'}</div></div>
+          <div class="sec-metric"><div class="sec-metric-lbl">종목 수</div><div class="sec-metric-val">${sec.stock_count}</div></div>
+        </div>
+        <div class="sec-sub-title">📊 세부 업종 순위 (RS Line 점수 평균)</div>
+        <div class="sec-sub-list">${subHTML}</div>
+      </div>`;
+    });
+  });
+
+  el.innerHTML=html||'<div class="empty">섹터 데이터가 없습니다.</div>';
 }
+
+// 섹터 더보기
+function expandSector(pageId, sectorName){
+  // 간단히 재렌더링 - 실제로는 _expanded 플래그 설정
+  const mkt=pageId.startsWith('us')?'us':'kr';
+  const sectors=mkt==='us'?getUSSectors():KR.sectors||[];
+  const sec=sectors.find(s=>(s.sector_kr||s.sector)===sectorName);
+  if(sec) sec._expanded=true;
+  mkt==='us'?renderUSSectors():renderKRSectors();
+}
+function getUSSectors(){return[];}// placeholder
 
 // ══════════════════════════════════════════════════════════
 // US 패턴 감지
