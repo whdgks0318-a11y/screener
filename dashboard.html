@@ -6,7 +6,8 @@
 <title>추세추종 스크리너 · US & KR</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;color:#1a1a1a;font-size:14px}
+body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;color:#1a1a1a;font-size:14px;overflow-x:hidden}
+*{box-sizing:border-box}
 
 /* ── 헤더 ── */
 .hdr{background:#fff;border-bottom:1px solid #e0e0d8;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:200}
@@ -159,7 +160,7 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .scr-result-count{font-size:13px;color:#666;font-weight:600;white-space:nowrap}
 .scr-result-count strong{color:#1a1a1a;font-size:15px}
 .scr-phase-bar{background:#fff;padding:6px 20px 8px;border-bottom:1px solid #e0e0d8;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.scr-tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:60px}
+.scr-tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:60px;display:block;width:100%;max-width:100%}
 .scr-tbl{width:100%;border-collapse:collapse;min-width:1200px;background:#fff}
 .scr-tbl thead th{padding:8px 10px;text-align:left;font-size:10px;color:#999;font-weight:600;border-bottom:2px solid #e0e0d8;background:#f8f8f4;white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0;z-index:5}
 .scr-tbl thead th:hover{background:#f0f0ea;color:#444}
@@ -231,89 +232,7 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .etf-phase-cell{display:flex;align-items:center;font-size:10px;font-weight:700;white-space:nowrap}
 
 /* ══ 모바일 반응형 (전체) ══════════════════════════════ */
-@media(max-width:768px){
-  /* 사이드바 — 모바일에선 완전히 숨김, 토글로만 열기 */
-  .mp-sidebar{transform:translateX(-200px);width:200px}
-  .mp-sidebar.mobile-open{transform:translateX(0)}
-  .mp-toggle{right:-30px;width:30px;height:44px}
-  .main-with-sidebar{margin-left:0 !important}
 
-  /* 헤더 */
-  .hdr{padding:8px 12px;flex-wrap:wrap;gap:6px}
-  .hdr-title{font-size:14px}
-  .hdr-btns{gap:4px;flex-wrap:wrap}
-  .hbtn{font-size:11px;padding:4px 8px}
-
-  /* 탭바 — 가로 스크롤 */
-  .top-tabs{padding:0 8px;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .top-tab{font-size:12px;padding:8px 10px;white-space:nowrap;flex-shrink:0}
-
-  /* 통계 바 */
-  .stats{grid-template-columns:repeat(3,1fr) !important;gap:5px;padding:8px 10px}
-  .sc{padding:7px 8px}
-  .sc-lbl{font-size:10px}
-  .sc-val{font-size:16px}
-
-  /* 컨트롤 영역 */
-  .controls{padding:8px 10px}
-  .ctrl-row{gap:4px}
-  .sbtn,.fbtn{font-size:11px;padding:3px 8px}
-
-  /* 종목 행 */
-  .stock-row{padding:8px 12px}
-  .stock-row-adv{padding:8px 12px;flex-wrap:wrap}
-
-  /* 고급 종목 행 — 모바일 2열 */
-  .adv-ticker{font-size:12px}
-  .adv-name .co{font-size:11px}
-  .adv-rs{font-size:12px}
-  .adv-ret{font-size:11px}
-  .adv-cap{display:none}
-
-  /* Market Pulse 탭 */
-  .sec-top1-wrap{grid-template-columns:1fr !important}
-  .sec-card-grid{grid-template-columns:1fr !important}
-
-  /* 상세 패널 */
-  .detail-panel{width:100vw}
-
-  /* 섹터 분석 툴바 */
-  .sec-sort-toolbar{padding:8px 12px;gap:4px}
-  .sec-sort-btn{font-size:11px;padding:3px 8px}
-
-  /* 섹터 ETF 테이블 — 가로 스크롤 */
-  .etf-tbl-wrap{overflow-x:auto}
-
-  /* Market Pulse 큰 카드 */
-  #mp-regime-big{padding:14px 16px}
-  #mp-big-label{font-size:20px !important}
-  #mp-big-invest{font-size:26px !important}
-
-  /* 결과바 */
-  .result-bar{padding:6px 12px}
-
-  /* 가이드 */
-  .guide-sub-tabs{padding:8px 10px}
-  .guide-sub-btn{font-size:11px;padding:5px 10px}
-
-  /* 서브탭 */
-  .sub-tabs{padding:0 10px}
-  .sub-tab{font-size:12px;padding:7px 10px}
-
-  /* 포지션 계산기 */
-  #mp-regime-big > div:first-child{flex-direction:column !important;gap:8px}
-  #mp-big-invest{font-size:28px !important}
-
-  /* ETF 상단 Phase 행 */
-  .etf-tbl-head,.etf-row{min-width:900px}
-}
-
-@media(max-width:480px){
-  .stats{grid-template-columns:repeat(2,1fr) !important}
-  .top-tab{font-size:11px;padding:7px 8px}
-  .hdr-title{font-size:13px}
-  .hdr-btns .hbtn:last-child{display:none}
-}
 .sec-sort-toolbar{display:flex;align-items:center;gap:6px;padding:10px 20px;background:#fff;border-bottom:2px solid #e0e0d8;flex-wrap:wrap}
 .sec-sort-lbl{font-size:12px;font-weight:700;color:#444}
 .sec-sort-btn{font-size:12px;padding:4px 12px;border:1px solid #d5d5cc;border-radius:6px;cursor:pointer;background:#fff;color:#444;white-space:nowrap;display:flex;align-items:center;gap:3px}
@@ -688,11 +607,65 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .qv-ticker{font-size:10px;color:#aaa;margin-bottom:2px}
 .qv-stage{font-size:12px;font-weight:700;color:#1a56db}
 /* 메인 콘텐츠 마진 */
-.main-with-sidebar{margin-left:200px;transition:margin-left .25s}
+.main-with-sidebar{margin-left:200px;transition:margin-left .25s;min-width:0}
 .main-with-sidebar.expanded{margin-left:32px}
 @media(max-width:900px){
-  .mp-sidebar{transform:translateX(-168px)}
+  .mp-sidebar{transform:translateX(-200px)}
   .main-with-sidebar{margin-left:32px}
+}
+
+/* ── 모바일 완전 수정 ── */
+@media(max-width:768px){
+  /* 사이드바: 완전 숨김, 토글로만 열기 */
+  .mp-sidebar{transform:translateX(-200px) !important;width:200px}
+  .mp-sidebar.mobile-open{transform:translateX(0) !important}
+  /* 토글 버튼: 모바일에서 더 작게 + 닫혀있을때 최소화 */
+  .mp-toggle{right:-18px;width:18px;height:32px;font-size:8px;opacity:0.7}
+  .mp-sidebar.mobile-open .mp-toggle{right:-22px;width:22px;height:36px;opacity:1}
+  /* 메인 영역: 사이드바 없으므로 0부터 */
+  .main-with-sidebar{margin-left:0 !important}
+
+  /* 헤더 */
+  .hdr{padding:8px 12px;flex-wrap:wrap;gap:6px}
+  .hdr-title{font-size:14px}
+  .hdr-btns{gap:4px;flex-wrap:wrap}
+  .hbtn{font-size:11px;padding:4px 8px}
+
+  /* 탭바 가로 스크롤 */
+  .top-tabs{padding:0 8px;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .top-tab{font-size:12px;padding:8px 10px;white-space:nowrap;flex-shrink:0}
+
+  /* 통계 바 */
+  .stats{grid-template-columns:repeat(3,1fr) !important;gap:5px;padding:8px 10px}
+  .sc{padding:7px 8px}
+  .sc-lbl{font-size:10px}
+  .sc-val{font-size:16px}
+
+  /* 컨트롤 영역 */
+  .controls{padding:8px 10px}
+  .ctrl-row{gap:4px;flex-wrap:wrap}
+  .sbtn,.fbtn{font-size:11px;padding:3px 8px}
+
+  /* Market Pulse 탭 */
+  .sec-top1-wrap{grid-template-columns:1fr !important;margin:8px 10px}
+  .sec-card-grid{grid-template-columns:1fr !important}
+
+  /* 상세 패널 전체 너비 */
+  .detail-panel{width:100vw}
+
+  /* 테이블들 가로 스크롤 */
+  .scr-tbl-wrap,.etf-tbl-wrap,.sec-tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .scr-tbl,.etf-tbl{min-width:auto}
+
+  /* ETF Phase 행 */
+  .etf-tbl-head,.etf-row{min-width:900px}
+}
+
+@media(max-width:480px){
+  .stats{grid-template-columns:repeat(2,1fr) !important}
+  .top-tab{font-size:11px;padding:7px 8px}
+  .hdr-title{font-size:13px}
+  .hdr-btns .hbtn:last-child{display:none}
 }
 
 
