@@ -42,7 +42,8 @@ body{
 .main-with-sidebar.expanded{/* 토글 호환 */}
 /* 탭 패널 */
 .top-panel{display:none;max-width:100%;overflow-x:clip}
-.top-panel.on{display:block}
+/* 모든 탭 헤더 아래 공통 안전 여백 — 어떤 탭이든 첫 콘텐츠가 헤더에 가리지 않도록 */
+.top-panel.on{display:block;padding-top:40px}
 
 
 
@@ -240,6 +241,23 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 
 /* ══ 섹터 ETF 테이블 ══ */
 .etf-tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ══ ETF 추천 조합 7선 + 프리셋 ══ */
+.etf-recombo{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:10px 20px;background:linear-gradient(90deg,#fef9e6 0%,#fffdf5 100%);border-bottom:1px solid #f0e5b8;font-size:11px}
+.recombo-icon{font-size:16px;flex-shrink:0}
+.recombo-label{font-weight:700;color:#854F0B;flex-shrink:0;white-space:nowrap}
+.recombo-btn{padding:5px 11px;font-size:11px;border:1px solid #d4c890;background:#fff;color:#5a4a1a;border-radius:99px;cursor:pointer;transition:all .12s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.recombo-btn:hover{background:#fff8d6;border-color:#b89938;transform:translateY(-1px)}
+.recombo-tag{display:inline-block;font-size:9px;background:#1a8a4a;color:#fff;padding:1px 5px;border-radius:99px;font-weight:700}
+.recombo-help{margin-left:auto;width:18px;height:18px;border-radius:99px;background:#fff;border:1px solid #d4c890;display:inline-flex;align-items:center;justify-content:center;cursor:help;font-size:10px;color:#888}
+
+.etf-presets{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 20px;background:#fafaf8;border-bottom:1px solid #e0e0d8;font-size:11px}
+.preset-btn{padding:5px 11px;font-size:11px;border:1px solid #d5d5cc;background:#fff;color:#555;border-radius:6px;cursor:pointer;transition:all .12s;font-weight:600;white-space:nowrap}
+.preset-btn:hover{background:#f0f5ff;border-color:#1a56db;color:#1a56db}
+.preset-btn.on{background:#1a56db;color:#fff;border-color:#1a56db}
+.preset-btn-ghost{padding:5px 9px;font-size:10px;border:1px dashed #c8c8c0;background:transparent;color:#888;border-radius:6px;cursor:pointer;font-weight:600}
+.preset-btn-ghost:hover{background:#f5f5f0;color:#444;border-style:solid}
+.preset-spacer{flex:1}
 
 .etf-tbl-head{
   display:grid;
@@ -899,8 +917,8 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
   align-items:center;
 }
 /* 가이드 탭 콘텐츠는 fixed 서브탭 높이만큼 상단 여백 확보
-   (서브탭이 wrap 되어 3~4줄일 수 있으므로 넉넉히 200px) */
-#top-panel-guide.on .guide-wrap .report-container{padding-top:200px}
+   (서브탭이 wrap 되어 4~5줄일 수 있으므로 넉넉히 240px) */
+#top-panel-guide.on .guide-wrap .report-container{padding-top:240px}
 .guide-sub-btn{
   padding:7px 14px;font-size:12px;font-weight:600;border-radius:6px;
   cursor:pointer;border:1.5px solid #d5d5cc;background:#fff;color:#555;
@@ -3898,6 +3916,35 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 
 <!-- ══ 섹터 ETF 탭 패널 ══ -->
 <div class="top-panel" id="top-panel-etf">
+
+  <!-- 추천 조합 7선 (빠른 필터 프리셋) -->
+  <div class="etf-recombo">
+    <span class="recombo-icon">💡</span>
+    <span class="recombo-label">추천 조합 7선:</span>
+    <button class="recombo-btn" onclick="applyEtfCombo('accel_rsh')">① 가속+RS신고 <span class="recombo-tag">권장</span></button>
+    <button class="recombo-btn" onclick="applyEtfCombo('triple')">② 트리플</button>
+    <button class="recombo-btn" onclick="applyEtfCombo('s2early')">③ S2초+S1→S2</button>
+    <button class="recombo-btn" onclick="applyEtfCombo('rs_lead')">④ RS선행</button>
+    <button class="recombo-btn" onclick="applyEtfCombo('phase4')">⑤ Phase 4 ★</button>
+    <button class="recombo-btn" onclick="applyEtfCombo('phase_trans')">⑥ Phase 전환 ★★</button>
+    <button class="recombo-btn" onclick="applyEtfCombo('phase4plus')">⑦ Phase 4+ ★★★</button>
+    <span class="recombo-help" title="설명 보기">ⓘ</span>
+  </div>
+
+  <!-- 프리셋 행 -->
+  <div class="etf-presets">
+    <span class="recombo-label">프리셋</span>
+    <button class="preset-btn on" id="etf-preset-early" onclick="applyEtfPreset('early',this)">🎯 조기리더</button>
+    <button class="preset-btn"     id="etf-preset-trip"  onclick="applyEtfPreset('trip',this)">⚡ 트리플</button>
+    <button class="preset-btn"     id="etf-preset-trans" onclick="applyEtfPreset('trans',this)">🔁 전환포착</button>
+    <button class="preset-btn"     id="etf-preset-acc"   onclick="applyEtfPreset('acc',this)">📈 매집선행</button>
+    <button class="preset-btn"     id="etf-preset-p4"    onclick="applyEtfPreset('p4',this)">🟢 Phase 4</button>
+    <button class="preset-btn"     id="etf-preset-pt"    onclick="applyEtfPreset('pt',this)">🔄 Phase 전환</button>
+    <button class="preset-btn"     id="etf-preset-p4plus" onclick="applyEtfPreset('p4plus',this)">🌲 + Phase 4+</button>
+    <span class="preset-spacer"></span>
+    <button class="preset-btn-ghost" onclick="resetEtfFilters()">+ 새 프리셋</button>
+    <button class="preset-btn-ghost" onclick="manageEtfPresets()">⚙ 관리</button>
+  </div>
 
   <!-- 툴바 -->
   <div class="controls" style="background:#fff;padding:10px 20px;border-bottom:1px solid #e0e0d8">
@@ -10518,6 +10565,62 @@ function setEtfSort(k, el) {
   renderEtfMomentum();
 }
 
+// ────────────────── 추천 조합 7선 (빠른 필터 적용) ──────────────────
+function applyEtfCombo(comboKey) {
+  // 기존 필터 다 끄기
+  etfFilters.clear();
+  document.querySelectorAll('#top-panel-etf .fbtn').forEach(b => b.classList.remove('on'));
+  etfPhaseFilter = 'all';
+  document.querySelectorAll('[id^="etf-phase-"]').forEach(b => b.classList.remove('on'));
+  document.getElementById('etf-phase-all')?.classList.add('on');
+
+  const setF = (k) => {
+    etfFilters.add(k);
+    document.getElementById('etf-f-' + k)?.classList.add('on');
+  };
+  switch(comboKey) {
+    case 'accel_rsh':   setF('acc'); setF('rsl'); break;
+    case 'triple':      setF('acc'); setF('h52'); setF('rsl'); break;
+    case 's2early':     setF('s2'); break;
+    case 'rs_lead':     setF('rsl'); break;
+    case 'phase4':      etfPhaseFilter = '4'; document.getElementById('etf-phase-4')?.classList.add('on'); break;
+    case 'phase_trans': setF('rsl'); etfPhaseFilter = '4'; document.getElementById('etf-phase-4')?.classList.add('on'); break;
+    case 'phase4plus':  etfPhaseFilter = '4plus'; document.getElementById('etf-phase-4plus')?.classList.add('on'); break;
+  }
+  renderEtfMomentum();
+}
+
+// ────────────────── 프리셋 (조기리더, 트리플 등) ──────────────────
+function applyEtfPreset(presetKey, el) {
+  document.querySelectorAll('#top-panel-etf .preset-btn').forEach(b => b.classList.remove('on'));
+  if (el) el.classList.add('on');
+  // 프리셋은 추천 조합과 비슷하게 매핑
+  const map = {
+    'early':  'accel_rsh',
+    'trip':   'triple',
+    'trans':  'phase_trans',
+    'acc':    'rs_lead',
+    'p4':     'phase4',
+    'pt':     'phase_trans',
+    'p4plus': 'phase4plus',
+  };
+  if (map[presetKey]) applyEtfCombo(map[presetKey]);
+}
+
+function resetEtfFilters() {
+  etfFilters.clear();
+  document.querySelectorAll('#top-panel-etf .fbtn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#top-panel-etf .preset-btn').forEach(b => b.classList.remove('on'));
+  etfPhaseFilter = 'all';
+  document.querySelectorAll('[id^="etf-phase-"]').forEach(b => b.classList.remove('on'));
+  document.getElementById('etf-phase-all')?.classList.add('on');
+  renderEtfMomentum();
+}
+
+function manageEtfPresets() {
+  alert('프리셋 관리 기능은 준비 중입니다.\n현재는 위 7개 기본 프리셋을 제공합니다.');
+}
+
 function setEtfPhase(phase, el) {
   etfPhaseFilter = phase;
   document.querySelectorAll('[id^="etf-phase-"]').forEach(b => b.classList.remove('on'));
@@ -10699,8 +10802,8 @@ function exportEtf() {
   function updateHeight() {
     const wrap = document.querySelector('.top-sticky-wrap');
     if (!wrap) return;
-    // 여유분 4px 추가 (테두리/그림자 등 보정)
-    const h = (wrap.offsetHeight || 92) + 4;
+    // 여유분 32px 추가 (그림자/언더라인/콘텐츠 첫 줄 잘림 방지)
+    const h = (wrap.offsetHeight || 92) + 32;
     document.documentElement.style.setProperty('--hdr-h', h + 'px');
     // 디버그 오버레이 (?debug=1 쿼리에서만)
     if (location.search.includes('debug=1')) {
