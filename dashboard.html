@@ -4396,11 +4396,11 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
           <th style="width:22px"></th><!-- 별 -->
           <th onclick="setScrSort('ticker',this)" style="width:130px">Symbol</th>
           <th onclick="setScrSort('price',this)"  style="width:60px">Price</th>
-          <th onclick="setScrSort('comp',this)"   style="width:36px">Comp</th>
-          <th onclick="setScrSort('eps',this)"    style="width:36px">EPS</th>
-          <th onclick="setScrSort('rs',this)"     class="sorted" style="width:90px">IBD RS</th>
+          <th onclick="setScrSort('comp',this)"   style="width:36px" title="종합 점수 (IBD RS+가속+Stage2+신호+패턴 합산을 A+/A/B/C 로 변환)">Comp*</th>
+          <th onclick="setScrSort('eps',this)"    style="width:36px" title="실제 EPS 등급은 IBD MarketSurge 유료 구독 데이터입니다. 무료 데이터로는 제공 불가">EPS</th>
+          <th onclick="setScrSort('rs',this)"     style="width:90px">IBD RS</th>
           <th onclick="setScrSort('rs_now',this)" style="width:90px">RS now</th>
-          <th onclick="setScrSort('rs_line_score',this)" style="width:80px">RS Line<br>점수</th>
+          <th onclick="setScrSort('rs_line_score',this)" class="sorted" style="width:80px">RS Line<br>점수</th>
           <th style="width:70px">Stage</th>
           <th style="width:90px">Phase</th>
           <th style="width:60px">RS신호</th>
@@ -4408,8 +4408,8 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
           <th style="width:160px">패턴 셋업</th>
           <th onclick="setScrSort('h52_pct',this)" style="width:55px">피벗%</th>
           <th style="width:100px">Ind Grp</th>
-          <th style="width:36px">SMR</th>
-          <th style="width:50px">Acc/Dis</th>
+          <th style="width:36px" title="Sales/Margin/ROE 등급. IBD MarketSurge 유료 구독 데이터로 무료 제공 불가">SMR</th>
+          <th style="width:50px" title="매집/분배 등급 (acc2=A, acc=B, 추정값)">Acc/Dis*</th>
           <th onclick="setScrSort('score',this)"  style="width:44px;text-align:right">점수</th>
         </tr>
       </thead>
@@ -10657,7 +10657,7 @@ function renderBacktest() {
 // 스크리너 탭 전용
 // ════════════════════════════════════════════════════════
 
-let scrSortKey   = 'rs';
+let scrSortKey   = 'rs_line_score';
 let scrSortDesc  = true;
 let scrRsFilter  = 'all';      // 기본: 전체 (데이터에 맞게)
 let scrPhaseFilter = 'all';
@@ -10758,7 +10758,7 @@ function scrSorted(d) {
   const get = (s) => {
     if (k === 'ticker')        return s.ticker || '';
     if (k === 'price')         return s.price || 0;
-    if (k === 'comp')          return s.comp || 0;
+    if (k === 'comp')          return s.comp != null ? s.comp : calcScrScore(s);
     if (k === 'eps')           return s.eps_rank || 0;
     if (k === 'rs')            return s.rs || 0;
     if (k === 'rs_now')        return s.rs_now || 0;
@@ -10852,7 +10852,7 @@ function scrRowHTML(s) {
       <span class="scr-ind">${s.industry||s.ind_grp||''}</span>
     </td>
     <td style="font-weight:600">${price}</td>
-    <td>${gradeColor(s.comp != null ? (s.comp >= 80 ? 'A+' : s.comp >= 60 ? 'A' : s.comp >= 40 ? 'B' : 'C') : null)}</td>
+    <td>${gradeColor(s.comp != null ? (s.comp >= 80 ? 'A+' : s.comp >= 60 ? 'A' : s.comp >= 40 ? 'B' : 'C') : (score >= 80 ? 'A+' : score >= 60 ? 'A' : score >= 40 ? 'B' : score >= 20 ? 'C' : null))}</td>
     <td>${gradeColor(s.eps_rank != null ? (s.eps_rank >= 80 ? 'A+' : s.eps_rank >= 60 ? 'A' : s.eps_rank >= 40 ? 'B' : 'C') : null)}</td>
     <td>${rsBarHTML(rs)}</td>
     <td>${rsBarHTML(rsNow)}</td>
@@ -10870,7 +10870,7 @@ function scrRowHTML(s) {
     <td>${pivotPct}</td>
     <td style="font-size:10px;color:#666">${(s.industry||s.ind_grp||'').slice(0,16)}</td>
     <td>${gradeColor(s.smr)}</td>
-    <td>${gradeColor(s.acc_dis)}</td>
+    <td>${gradeColor(s.acc_dis != null ? s.acc_dis : (s.acc2 ? 'A' : s.acc ? 'B' : null))}</td>
     <td style="text-align:right"><span class="scr-score" style="color:${scoreColor}">${score}</span></td>
   </tr>`;
 }
@@ -11233,7 +11233,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-27x] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-27y] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
