@@ -4184,45 +4184,48 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 <!-- ══ 백테스트 탭 패널 ══ -->
 <div class="top-panel" id="top-panel-backtest">
 
-  <!-- 요약 지표 -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:2px solid #e0e0d8;background:#fff">
-    <div style="padding:18px 24px;border-right:1px solid #e0e0d8">
-      <div style="font-size:11px;color:#aaa;margin-bottom:6px">총 트레이드</div>
-      <div style="font-size:36px;font-weight:800;color:#1a1a1a" id="bt-total">—</div>
+  <!-- 요약 지표 박스 (KPI + 추가 지표) -->
+  <div style="margin:24px 20px 0;border:1px solid #e0e0d8;border-radius:12px;overflow:hidden;background:#fff">
+    <!-- KPI 4개 -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:2px solid #e0e0d8">
+      <div style="padding:18px 24px;border-right:1px solid #e0e0d8">
+        <div style="font-size:11px;color:#aaa;margin-bottom:6px">총 트레이드</div>
+        <div style="font-size:36px;font-weight:800;color:#1a1a1a" id="bt-total">—</div>
+      </div>
+      <div style="padding:18px 24px;border-right:1px solid #e0e0d8">
+        <div style="font-size:11px;color:#aaa;margin-bottom:6px">3일 승률</div>
+        <div style="font-size:36px;font-weight:800;color:#1a8a4a" id="bt-winrate">—</div>
+      </div>
+      <div style="padding:18px 24px;border-right:1px solid #e0e0d8">
+        <div style="font-size:11px;color:#aaa;margin-bottom:6px">3일 평균수익</div>
+        <div style="font-size:36px;font-weight:800;color:#1a8a4a" id="bt-avgret">—</div>
+      </div>
+      <div style="padding:18px 24px;background:#f0f7ff;border-left:2px solid #185FA5">
+        <div style="font-size:11px;color:#185FA5;font-weight:700;margin-bottom:6px">3일 알파 (vs SPY)</div>
+        <div style="font-size:36px;font-weight:800;color:#c0392b" id="bt-alpha">—</div>
+      </div>
     </div>
-    <div style="padding:18px 24px;border-right:1px solid #e0e0d8">
-      <div style="font-size:11px;color:#aaa;margin-bottom:6px">3일 승률</div>
-      <div style="font-size:36px;font-weight:800;color:#1a8a4a" id="bt-winrate">—</div>
-    </div>
-    <div style="padding:18px 24px;border-right:1px solid #e0e0d8">
-      <div style="font-size:11px;color:#aaa;margin-bottom:6px">3일 평균수익</div>
-      <div style="font-size:36px;font-weight:800;color:#1a8a4a" id="bt-avgret">—</div>
-    </div>
-    <div style="padding:18px 24px;border:2px solid #185FA5;border-radius:0">
-      <div style="font-size:11px;color:#185FA5;font-weight:700;margin-bottom:6px">3일 알파 (vs SPY)</div>
-      <div style="font-size:36px;font-weight:800;color:#c0392b" id="bt-alpha">—</div>
-    </div>
-  </div>
 
-  <!-- 추가 지표 -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;background:#f8f8f4;border-bottom:1px solid #e0e0d8">
-    <div style="padding:10px 24px;border-right:1px solid #e0e0d8;font-size:12px;color:#666">
-      3일 SPY 비교: <strong id="bt-spy-cmp" style="color:#1a1a1a">—</strong>
-    </div>
-    <div style="padding:10px 24px;border-right:1px solid #e0e0d8;font-size:12px;color:#666">
-      평균 DD: <strong id="bt-avgdd" style="color:#c0392b">—</strong>
-    </div>
-    <div style="padding:10px 24px;font-size:12px;color:#aaa">
-      * 3일 데이터(1~2주)는 운의 영향이 크므로, 최소 30일 이상 누적 후 참고하세요.
+    <!-- 추가 지표 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;background:#f8f8f4">
+      <div style="padding:10px 24px;border-right:1px solid #e0e0d8;font-size:12px;color:#666">
+        3일 SPY 비교: <strong id="bt-spy-cmp" style="color:#1a1a1a">—</strong>
+      </div>
+      <div style="padding:10px 24px;border-right:1px solid #e0e0d8;font-size:12px;color:#666">
+        평균 DD: <strong id="bt-avgdd" style="color:#c0392b">—</strong>
+      </div>
+      <div style="padding:10px 24px;font-size:12px;color:#aaa">
+        * 3일 데이터(1~2주)는 운의 영향이 크므로, 최소 30일 이상 누적 후 참고하세요.
+      </div>
     </div>
   </div>
 
   <!-- 신호 조합 테이블 -->
-  <div style="padding:16px 20px 0;background:#fff">
-    <div style="font-size:13px;font-weight:700;margin-bottom:12px">
+  <div style="margin:16px 20px 0;background:#fff;border:1px solid #e0e0d8;border-radius:12px;overflow:hidden">
+    <div style="font-size:13px;font-weight:700;padding:14px 20px;border-bottom:1px solid #e0e0d8;background:#fafaf6">
       🎯 핵심 매수 신호 조합별 백테스트 <span style="font-size:11px;color:#aaa;font-weight:400">(시장 차감 알파 포함)</span>
     </div>
-    <div style="overflow-x:auto">
+    <div style="overflow-x:auto;padding:0 12px">
       <table style="width:100%;border-collapse:collapse;min-width:900px">
         <thead>
           <tr style="background:#f8f8f4;font-size:11px;color:#999;font-weight:700">
@@ -4259,10 +4262,10 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
   </div>
 
   <!-- 기간별 성과 요약 -->
-  <div style="padding:0 20px 60px">
-    <div style="font-size:13px;font-weight:700;margin-bottom:10px">📊 기간별 성과 요약 (vs SPY 시장 차감 알파)</div>
-    <div id="bt-period-table" style="overflow-x:auto">
-      <div class="empty">데이터를 불러오면 표시됩니다.</div>
+  <div style="margin:16px 20px 60px;background:#fff;border:1px solid #e0e0d8;border-radius:12px;overflow:hidden">
+    <div style="font-size:13px;font-weight:700;padding:14px 20px;border-bottom:1px solid #e0e0d8;background:#fafaf6">📊 기간별 성과 요약 (vs SPY 시장 차감 알파)</div>
+    <div id="bt-period-table" style="overflow-x:auto;padding:0 12px">
+      <div class="empty" style="padding:40px">데이터를 불러오면 표시됩니다.</div>
     </div>
   </div>
 
@@ -9856,14 +9859,75 @@ function loadKRFile(e) {
 }
 
 async function autoLoad() {
-  const usPaths = ['./output/screener_data.json','../output/screener_data.json','./screener_data.json'];
-  for (const p of usPaths) {
-    try { const r = await fetch(p); if(!r.ok) continue; ingestUS(await r.json()); break; } catch(e) {}
+  // ─────────────────────────────────────────────────────────
+  // 개선된 자동 로드: 모든 후보 경로를 fetch한 뒤 점수가 가장 높은 파일 선택
+  // 점수 = (sector 채워진 비율 × 100) + (updated_at 최신순 보정)
+  // 같은 폴더에 enrich 된 신규본 + output/ 폴더에 구본이 공존해도 신규본 자동 선택
+  // ─────────────────────────────────────────────────────────
+  const scoreUS = (raw) => {
+    const stocks = raw.stocks || [];
+    if (!stocks.length) return -1;
+    const total = stocks.length;
+    const withSec = stocks.filter(s => s.sector && s.sector.trim() && !/RS\s|회피|약세|양호|중립|강세|최상위/.test(s.sector)).length;
+    const sectorPct = withSec / total;                               // 0~1
+    const updatedAt = raw.meta?.updated_at ? new Date(raw.meta.updated_at).getTime() : 0;
+    const recencyBoost = updatedAt > 0 ? (updatedAt / 1e13) : 0;     // 작은 가산점
+    return sectorPct * 100 + recencyBoost;
+  };
+
+  const fetchAll = async (paths) => {
+    const results = [];
+    for (const p of paths) {
+      try {
+        const r = await fetch(p);
+        if (!r.ok) continue;
+        const json = await r.json();
+        results.push({ path: p, json });
+      } catch (e) {}
+    }
+    return results;
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // US: 같은 폴더 우선 → output/ 보조
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const usPaths = ['./screener_data.json', './output/screener_data.json', '../output/screener_data.json'];
+  const usResults = await fetchAll(usPaths);
+
+  if (usResults.length > 0) {
+    // 점수 계산 후 최고점 선택
+    const ranked = usResults.map(r => ({ ...r, score: scoreUS(r.json) }))
+                            .sort((a, b) => b.score - a.score);
+
+    console.log('%c[자동로드] US 후보 파일 평가', 'color:#1a56db;font-weight:bold');
+    ranked.forEach((r, i) => {
+      const stocks = r.json.stocks || [];
+      const withSec = stocks.filter(s => s.sector && !/RS\s|회피|약세|양호|중립|강세|최상위/.test(s.sector)).length;
+      console.log(`   ${i === 0 ? '✅ 선택' : '   대기'}  ${r.path}  · ${stocks.length}종목 · GICS ${withSec}개 · score=${r.score.toFixed(1)}`);
+    });
+
+    const best = ranked[0];
+    ingestUS(best.json);
+
+    // 더 좋은 후보가 있는데 다른 경로에도 파일이 있는 경우 안내
+    if (ranked.length > 1 && ranked[1].score > 0) {
+      const better = best.path, ignored = ranked[1].path;
+      console.warn(`⚠ 다른 경로에도 파일 있음: ${ignored}\n   → 자동으로 ${better} 사용 중 (sector 비율이 더 높음)`);
+    }
   }
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // KR: 기존 로직 유지 (sector_kr 비율로 평가)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const krPaths = ['./kr_screener_output.json','../kr_screener_output.json'];
-  for (const p of krPaths) {
-    try { const r = await fetch(p); if(!r.ok) continue; ingestKR(await r.json()); break; } catch(e) {}
+  const krResults = await fetchAll(krPaths);
+  if (krResults.length > 0) {
+    // KR은 보통 한 파일이지만, 만약 여러 개면 종목 수 많은 걸 우선
+    krResults.sort((a, b) => (b.json.all_stocks?.length || 0) - (a.json.all_stocks?.length || 0));
+    ingestKR(krResults[0].json);
+    console.log(`%c[자동로드] KR: ${krResults[0].path}`, 'color:#1a56db;font-weight:bold');
   }
+
   if (!US.data.length) setText('meta-date', 'JSON 불러오기 클릭');
 }
 
