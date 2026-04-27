@@ -1318,6 +1318,19 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
      걸 한 번 더 강제로 덮음
    ════════════════════════════════════════════════════════════ */
 @media (max-width:768px){
+  /* 메인 콘텐츠 상단 여백 강화 - 모바일 브라우저 viewport 변동 대비
+     (모바일 Chrome은 주소창 표시/숨김에 따라 fixed 헤더 위치가 미묘하게 바뀜) */
+  .main-with-sidebar{
+    padding-top:calc(var(--hdr-h) + 16px) !important;
+  }
+  /* 모든 탭 패널은 추가로 24px 안전 여백 */
+  .top-panel.on{padding-top:24px !important}
+  /* 백테스트는 KPI 카드라 더 큰 여백 */
+  #top-panel-backtest.on{padding-top:32px !important}
+  /* 전략 가이드는 사이드 박스가 위에 일반 흐름으로 들어가니 추가 padding은 빼고
+     자연스러운 흐름 */
+  #top-panel-guide.on{padding-top:0 !important}
+
   /* 전략 가이드 사이드 박스 강제 해제 */
   #top-panel-guide.on .strat-sub-tabs,
   .strat-sub-tabs{
@@ -11123,7 +11136,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-27j] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-27k] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
