@@ -1012,7 +1012,7 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     top:auto !important; left:auto !important; right:auto !important;
     max-width:100% !important;
     width:auto !important;
-    margin:0 0 16px 0 !important;
+    margin:16px 0 16px 0 !important;
     padding:8px 16px !important;
     background:#fafaf8 !important;
     border:1px solid #e0dfd8 !important;
@@ -1028,7 +1028,9 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     white-space:nowrap;
   }
   #top-panel-guide.on .strat-sub-tabs > *{flex-shrink:0}
-  /* 일반 흐름이라 padding-top 0 */
+  /* 가이드 탭 패널은 메뉴띠가 헤더에 가리지 않도록 추가 padding-top */
+  #top-panel-guide.on{padding-top:24px !important}
+  /* 일반 흐름이라 report-container padding-top 0 */
   #top-panel-guide.on .guide-wrap .report-container{padding-top:0}
 }
 .guide-sub-btn{
@@ -11228,7 +11230,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-27s] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-27t] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
