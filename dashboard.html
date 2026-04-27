@@ -885,6 +885,47 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 
   /* ETF Phase 행 */
   .etf-tbl-head,.etf-row{min-width:900px}
+
+  /* ═══ 전략 가이드 모바일 ═══ */
+  /* fixed strat-sub-tabs는 모바일에서 left:0부터 (사이드바 overlay 방식) */
+  #top-panel-guide.on .strat-sub-tabs{
+    left:0 !important; right:0 !important;
+    padding:8px 12px !important;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    flex-wrap:nowrap !important;
+    white-space:nowrap;
+  }
+  #top-panel-guide.on .strat-sub-tabs > *{flex-shrink:0}
+  /* 모바일에선 한 줄로 가로 스크롤되니까 padding-top도 줄임 */
+  #top-panel-guide.on .guide-wrap .report-container{padding-top:90px !important}
+  /* 가이드 콘텐츠 자체 폭/패딩 모바일화 */
+  .guide-content{padding:16px 14px 60px;font-size:13px}
+  .guide-content h1{font-size:17px}
+  .guide-content h2{font-size:15px}
+  .guide-content table{font-size:11px}
+
+  /* ═══ RS 모멘텀 모바일 ═══ */
+  /* KPI 그리드 2열 */
+  .stat-card-grid,.mom-stat-grid,
+  [class*="stat-grid"]{grid-template-columns:repeat(2,1fr) !important;gap:8px !important}
+  /* 추천 조합 7선 카드 - 1줄에 2개씩 wrap */
+  .preset-row,.mom-preset-row{flex-wrap:wrap !important;gap:6px !important}
+  .preset-row > *,.mom-preset-row > *{flex:1 1 calc(50% - 6px);min-width:140px}
+  /* 정렬 / 필터 행이 너무 많은 버튼이면 가로 스크롤 */
+  .mom-toolbar,.mom-filter-row{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:wrap}
+
+  /* ═══ 백테스트 KPI 카드 모바일 ═══ */
+  /* KPI 4카드 → 2열 2행 */
+  #top-panel-backtest > div > div:first-child{grid-template-columns:repeat(2,1fr) !important}
+  #top-panel-backtest > div > div:first-child > div:nth-child(4){border-left:none !important;border-top:2px solid #185FA5 !important}
+  /* 추가 지표 행 → 1열 stacked */
+  #top-panel-backtest > div > div:nth-child(2){grid-template-columns:1fr !important}
+  #top-panel-backtest > div > div:nth-child(2) > div{border-right:none !important;border-bottom:1px solid #e0e0d8}
+  #top-panel-backtest > div > div:nth-child(2) > div:last-child{border-bottom:none}
+
+  /* ═══ 패턴 감지 모바일 ═══ */
+  /* 카드 그리드 1열 */
+  #pat-top-grid{grid-template-columns:1fr !important;padding:14px !important}
 }
 
 @media(max-width:480px){
@@ -10941,7 +10982,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-27f] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 48px) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-27g] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 48px) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
