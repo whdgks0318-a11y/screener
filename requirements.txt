@@ -1,0 +1,7 @@
+requests>=2.31.0
+pandas>=2.0.0
+numpy>=1.24.0
+python-dotenv>=1.0.0
+schedule>=1.2.0
+lxml>=4.9.0      # pd.read_html 에 필요
+html5lib>=1.1    # pd.read_html fallback
