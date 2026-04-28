@@ -1335,6 +1335,7 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
   .top-panel.on{padding-top:24px !important}
   /* 백테스트는 KPI 카드라 더 큰 여백 */
   #top-panel-backtest.on{padding-top:32px !important}
+  /* 전략 가이드 - 메뉴띠가 헤더에 가리지 않도록 충분한 padding */
   /* 전략 가이드 - 메뉴띠가 헤더에 가리지 않도록 충분한 padding
      모바일 헤더는 타이틀+날짜버튼+탭바로 3줄 wrap 되므로 48px로 부족.
      데스크탑과 동일하게 80px 로 통일하여 헤더 아래로 확실히 밀어냄. */
@@ -1361,31 +1362,32 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     max-width:100% !important;
     box-sizing:border-box;
   }
-  /* 메뉴띠 - 모바일에선 가로 스크롤 대신 여러 줄 wrap (사용자가 한눈에 파악) */
+  /* 메뉴띠 강제 가시화 + 좌우 가로 스크롤 활성화 */
   #top-panel-guide.on .strat-sub-tabs{
     display:flex !important;
     visibility:visible !important;
     opacity:1 !important;
     height:auto !important;
     min-height:48px !important;
-    overflow-x:visible !important;
+    overflow-x:auto !important;
     overflow-y:visible !important;
-    flex-wrap:wrap !important;
-    white-space:normal !important;
-    padding:12px 14px !important;
+    flex-wrap:nowrap !important;
+    white-space:nowrap !important;
+    padding:8px 12px !important;
     background:#fafaf8 !important;
     border:1px solid #e0dfd8 !important;
     border-radius:6px !important;
     margin:0 0 12px 0 !important;
-    gap:8px 6px !important;
+    -webkit-overflow-scrolling:touch;
   }
   #top-panel-guide.on .strat-sub-tabs > *{
     flex-shrink:0 !important;
     max-width:none !important;
   }
-  /* 가이드 탭 패널 - 메뉴띠가 wrap 되므로 가로 스크롤 불필요 */
+  /* 가이드 탭 패널 자체에 가로 스크롤 활성화 */
   #top-panel-guide{
-    overflow-x:visible !important;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch;
   }
 
   /* 전략 가이드 사이드 박스 강제 해제 + 모든 부모 가시화 */
@@ -1404,20 +1406,20 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     position:relative !important;
     top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
     width:100% !important; max-width:100% !important; margin:0 0 16px 0 !important;
-    padding:14px 14px !important;
+    padding:10px 12px !important;
     background:#fafaf8 !important;
-    border:1px solid #e0dfd8 !important;
+    border:2px solid #185FA5 !important;
     border-radius:8px !important;
     box-shadow:none !important;
-    overflow-x:visible !important;
-    flex-wrap:wrap !important; white-space:normal !important;
+    overflow-x:auto !important;-webkit-overflow-scrolling:touch;
+    flex-wrap:nowrap !important; white-space:nowrap;
     z-index:auto !important;
     box-sizing:border-box;
     display:flex !important;
     visibility:visible !important;
     opacity:1 !important;
     align-items:center;
-    gap:8px 6px !important;
+    gap:6px;
     min-height:50px;
     height:auto !important;
   }
@@ -4021,9 +4023,9 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     <div class="sc"><div class="sc-lbl">전체 종목</div><div class="sc-val blue" id="kr-s-total">—</div></div>
     <div class="sc"><div class="sc-lbl">평균 RS</div><div class="sc-val" id="kr-s-avgrs">—</div></div>
     <div class="sc"><div class="sc-lbl">Stage 2</div><div class="sc-val green" id="kr-s-stage2">—</div></div>
+    <div class="sc"><div class="sc-lbl">가속중</div><div class="sc-val" id="kr-s-acc">—</div></div>
     <div class="sc"><div class="sc-lbl">52주 신고가</div><div class="sc-val" id="kr-s-h52">—</div></div>
     <div class="sc"><div class="sc-lbl">RS Line선행</div><div class="sc-val blue" id="kr-s-rsl">—</div></div>
-    <div class="sc"><div class="sc-lbl">강세 섹터</div><div class="sc-val green" id="kr-s-strong">—</div></div>
     <div class="sc"><div class="sc-lbl">🏦 대형주(1조+)</div><div class="sc-val" id="kr-s-large">—</div></div>
   </div>
   <div class="sub-tabs">
@@ -4031,12 +4033,26 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     <button class="sub-tab" onclick="switchSubTab('kr','sector',this)">🏭 섹터 분석</button>
   </div>
   <div class="sub-content on" id="kr-sub-momentum">
+    <!-- 추천 조합 7선 배너 (미국과 동일) -->
+    <div style="background:linear-gradient(135deg,#E6F1FB,#F0F9ED);border-bottom:1px solid #e0e0d8;padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;font-weight:700;color:#185FA5">⚡ 추천 조합 7선:</span>
+      <button class="preset-btn on" onclick="applyPresetKR('acc_rsl',this,'kr')">① 가속+RS신고 <span style="background:#1a8a4a;color:#fff;border-radius:3px;padding:1px 4px;font-size:10px">권장</span></button>
+      <button class="preset-btn" onclick="applyPresetKR('triple',this,'kr')">② 트리플</button>
+      <button class="preset-btn" onclick="applyPresetKR('s2_s1s2',this,'kr')">③ S2초+S1→S2</button>
+      <button class="preset-btn" onclick="applyPresetKR('rsl',this,'kr')">④ RS선행</button>
+      <button class="preset-btn" onclick="applyPresetKR('phase4',this,'kr')">⑤ Phase 4 ★</button>
+      <button class="preset-btn" onclick="applyPresetKR('phase_change',this,'kr')">⑥ Phase 전환 ★★</button>
+      <button class="preset-btn" onclick="applyPresetKR('phase4plus',this,'kr')">⑦ Phase 4+ ★★★</button>
+    </div>
     <div class="controls">
       <div class="ctrl-row">
         <span class="row-lbl">정렬</span>
         <button class="sbtn on" onclick="setSort('rs_score',this,'kr')">RS 점수↓</button>
         <button class="sbtn" onclick="setSort('ibd_rs',this,'kr')">IBD RS↓</button>
+        <button class="sbtn" onclick="setSort('rs_now',this,'kr')">RS now↓</button>
+        <button class="sbtn" onclick="setSort('gap',this,'kr')">갭(now-IBD)↓</button>
         <button class="sbtn" onclick="setSort('w1',this,'kr')">최근1주↓</button>
+        <button class="sbtn" onclick="setSort('w3',this,'kr')">1~3주↓</button>
         <button class="sbtn" onclick="setSort('mktcap',this,'kr')">🏦 시총↓</button>
       </div>
       <div class="ctrl-row">
@@ -4049,13 +4065,30 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
       </div>
       <div class="ctrl-row">
         <span class="row-lbl">필터</span>
-        <button class="fbtn" id="kr-f-s2" onclick="toggleF('s2',this,'kr')">✓ Stage2</button>
         <button class="fbtn" id="kr-f-acc" onclick="toggleF('acc',this,'kr')">⚡ 가속중</button>
+        <button class="fbtn" id="kr-f-acc2" onclick="toggleF('acc2',this,'kr')">⚡⚡ 가속추세</button>
         <button class="fbtn" id="kr-f-h52" onclick="toggleF('h52',this,'kr')">🚀 52주신고가</button>
-        <button class="fbtn" id="kr-f-rsl" onclick="toggleF('rsl',this,'kr')">📡 RS선행</button>
+        <button class="fbtn" id="kr-f-rsl" onclick="toggleF('rsl',this,'kr')">↗ RS Line선행</button>
+        <button class="fbtn" id="kr-f-s2" onclick="toggleF('s2',this,'kr')">Stage 2</button>
+        <button class="fbtn" id="kr-f-s2early" onclick="toggleF('s2early',this,'kr')">🌱 S2초반</button>
+        <button class="fbtn" id="kr-f-s1s2" onclick="toggleF('s1s2',this,'kr')">🔄 S1→S2</button>
+        <button class="fbtn" id="kr-f-ma200" onclick="toggleF('ma200',this,'kr')">200일선 위</button>
         <button class="fbtn" id="kr-f-rs70" onclick="toggleF('rs70',this,'kr')">RS 70+</button>
         <button class="fbtn" id="kr-f-rs80" onclick="toggleF('rs80',this,'kr')">RS 80+</button>
+        <button class="fbtn" id="kr-f-rs90" onclick="toggleF('rs90',this,'kr')">RS 90+</button>
         <button class="fbtn" id="kr-f-large" onclick="toggleF('large',this,'kr')">🏦 1조+</button>
+        <button class="fbtn" id="kr-f-mega" onclick="toggleF('mega',this,'kr')">🏛️ 10조+</button>
+      </div>
+      <div class="ctrl-row">
+        <span class="row-lbl">Phase</span>
+        <button class="fbtn on" id="kr-phase-all" onclick="setPhaseFilterKR('all',this,'kr')">전체</button>
+        <button class="fbtn" id="kr-phase-4plus" onclick="setPhaseFilterKR('4plus',this,'kr')" style="background:#D1F2C4;border-color:#1F5A09;color:#1F5A09">🎯+ 4+최상위★</button>
+        <button class="fbtn" id="kr-phase-4" onclick="setPhaseFilterKR('4',this,'kr')" style="background:#eaf6ee;border-color:#1a8a4a;color:#1a8a4a">🎯 4돌파임박★</button>
+        <button class="fbtn" id="kr-phase-5" onclick="setPhaseFilterKR('5',this,'kr')">5분커다</button>
+        <button class="fbtn" id="kr-phase-3" onclick="setPhaseFilterKR('3',this,'kr')">3베이스성숙</button>
+        <button class="fbtn" id="kr-phase-67" onclick="setPhaseFilterKR('67',this,'kr')">6·7분배</button>
+        <button class="fbtn" id="kr-phase-2" onclick="setPhaseFilterKR('2',this,'kr')">2바닥매집</button>
+        <button class="fbtn" id="kr-phase-01" onclick="setPhaseFilterKR('01',this,'kr')">0·1회피</button>
       </div>
     </div>
     <div class="result-bar"><div class="res-count">필터: <strong id="kr-res-count">—</strong>종목</div></div>
@@ -4078,9 +4111,9 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     <div class="sc"><div class="sc-lbl">전체 종목</div><div class="sc-val blue" id="kr2-s-total">—</div></div>
     <div class="sc"><div class="sc-lbl">평균 RS</div><div class="sc-val" id="kr2-s-avgrs">—</div></div>
     <div class="sc"><div class="sc-lbl">Stage 2</div><div class="sc-val green" id="kr2-s-stage2">—</div></div>
+    <div class="sc"><div class="sc-lbl">가속중</div><div class="sc-val" id="kr2-s-acc">—</div></div>
     <div class="sc"><div class="sc-lbl">52주 신고가</div><div class="sc-val" id="kr2-s-h52">—</div></div>
     <div class="sc"><div class="sc-lbl">RS Line선행</div><div class="sc-val blue" id="kr2-s-rsl">—</div></div>
-    <div class="sc"><div class="sc-lbl">강세 섹터</div><div class="sc-val green" id="kr2-s-strong">—</div></div>
     <div class="sc"><div class="sc-lbl">🏦 중대형(1조+)</div><div class="sc-val" id="kr2-s-large">—</div></div>
   </div>
   <div class="sub-tabs">
@@ -4088,12 +4121,26 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     <button class="sub-tab" onclick="switchSubTab('kr2','sector',this)">🏭 섹터 분석</button>
   </div>
   <div class="sub-content on" id="kr2-sub-momentum">
+    <!-- 추천 조합 7선 배너 (미국과 동일) -->
+    <div style="background:linear-gradient(135deg,#E6F1FB,#F0F9ED);border-bottom:1px solid #e0e0d8;padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;font-weight:700;color:#185FA5">⚡ 추천 조합 7선:</span>
+      <button class="preset-btn on" onclick="applyPresetKR('acc_rsl',this,'kr2')">① 가속+RS신고 <span style="background:#1a8a4a;color:#fff;border-radius:3px;padding:1px 4px;font-size:10px">권장</span></button>
+      <button class="preset-btn" onclick="applyPresetKR('triple',this,'kr2')">② 트리플</button>
+      <button class="preset-btn" onclick="applyPresetKR('s2_s1s2',this,'kr2')">③ S2초+S1→S2</button>
+      <button class="preset-btn" onclick="applyPresetKR('rsl',this,'kr2')">④ RS선행</button>
+      <button class="preset-btn" onclick="applyPresetKR('phase4',this,'kr2')">⑤ Phase 4 ★</button>
+      <button class="preset-btn" onclick="applyPresetKR('phase_change',this,'kr2')">⑥ Phase 전환 ★★</button>
+      <button class="preset-btn" onclick="applyPresetKR('phase4plus',this,'kr2')">⑦ Phase 4+ ★★★</button>
+    </div>
     <div class="controls">
       <div class="ctrl-row">
         <span class="row-lbl">정렬</span>
         <button class="sbtn on" onclick="setSort('rs_score',this,'kr2')">RS 점수↓</button>
         <button class="sbtn" onclick="setSort('ibd_rs',this,'kr2')">IBD RS↓</button>
+        <button class="sbtn" onclick="setSort('rs_now',this,'kr2')">RS now↓</button>
+        <button class="sbtn" onclick="setSort('gap',this,'kr2')">갭(now-IBD)↓</button>
         <button class="sbtn" onclick="setSort('w1',this,'kr2')">최근1주↓</button>
+        <button class="sbtn" onclick="setSort('w3',this,'kr2')">1~3주↓</button>
         <button class="sbtn" onclick="setSort('mktcap',this,'kr2')">🏦 시총↓</button>
       </div>
       <div class="ctrl-row">
@@ -4105,11 +4152,29 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
       </div>
       <div class="ctrl-row">
         <span class="row-lbl">필터</span>
-        <button class="fbtn" id="kr2-f-s2" onclick="toggleF('s2',this,'kr2')">✓ Stage2</button>
         <button class="fbtn" id="kr2-f-acc" onclick="toggleF('acc',this,'kr2')">⚡ 가속중</button>
+        <button class="fbtn" id="kr2-f-acc2" onclick="toggleF('acc2',this,'kr2')">⚡⚡ 가속추세</button>
         <button class="fbtn" id="kr2-f-h52" onclick="toggleF('h52',this,'kr2')">🚀 52주신고가</button>
+        <button class="fbtn" id="kr2-f-rsl" onclick="toggleF('rsl',this,'kr2')">↗ RS Line선행</button>
+        <button class="fbtn" id="kr2-f-s2" onclick="toggleF('s2',this,'kr2')">Stage 2</button>
+        <button class="fbtn" id="kr2-f-s2early" onclick="toggleF('s2early',this,'kr2')">🌱 S2초반</button>
+        <button class="fbtn" id="kr2-f-s1s2" onclick="toggleF('s1s2',this,'kr2')">🔄 S1→S2</button>
+        <button class="fbtn" id="kr2-f-ma200" onclick="toggleF('ma200',this,'kr2')">200일선 위</button>
         <button class="fbtn" id="kr2-f-rs70" onclick="toggleF('rs70',this,'kr2')">RS 70+</button>
         <button class="fbtn" id="kr2-f-rs80" onclick="toggleF('rs80',this,'kr2')">RS 80+</button>
+        <button class="fbtn" id="kr2-f-rs90" onclick="toggleF('rs90',this,'kr2')">RS 90+</button>
+        <button class="fbtn" id="kr2-f-large" onclick="toggleF('large',this,'kr2')">🏦 1조+</button>
+      </div>
+      <div class="ctrl-row">
+        <span class="row-lbl">Phase</span>
+        <button class="fbtn on" id="kr2-phase-all" onclick="setPhaseFilterKR('all',this,'kr2')">전체</button>
+        <button class="fbtn" id="kr2-phase-4plus" onclick="setPhaseFilterKR('4plus',this,'kr2')" style="background:#D1F2C4;border-color:#1F5A09;color:#1F5A09">🎯+ 4+최상위★</button>
+        <button class="fbtn" id="kr2-phase-4" onclick="setPhaseFilterKR('4',this,'kr2')" style="background:#eaf6ee;border-color:#1a8a4a;color:#1a8a4a">🎯 4돌파임박★</button>
+        <button class="fbtn" id="kr2-phase-5" onclick="setPhaseFilterKR('5',this,'kr2')">5분커다</button>
+        <button class="fbtn" id="kr2-phase-3" onclick="setPhaseFilterKR('3',this,'kr2')">3베이스성숙</button>
+        <button class="fbtn" id="kr2-phase-67" onclick="setPhaseFilterKR('67',this,'kr2')">6·7분배</button>
+        <button class="fbtn" id="kr2-phase-2" onclick="setPhaseFilterKR('2',this,'kr2')">2바닥매집</button>
+        <button class="fbtn" id="kr2-phase-01" onclick="setPhaseFilterKR('01',this,'kr2')">0·1회피</button>
       </div>
     </div>
     <div class="result-bar"><div class="res-count">필터: <strong id="kr2-res-count">—</strong>종목</div></div>
@@ -4396,11 +4461,11 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
           <th style="width:22px"></th><!-- 별 -->
           <th onclick="setScrSort('ticker',this)" style="width:130px">Symbol</th>
           <th onclick="setScrSort('price',this)"  style="width:60px">Price</th>
-          <th onclick="setScrSort('comp',this)"   style="width:36px" title="종합 점수 (IBD RS+가속+Stage2+신호+패턴 합산을 A+/A/B/C 로 변환)">Comp*</th>
-          <th onclick="setScrSort('eps',this)"    style="width:36px" title="실제 EPS 등급은 IBD MarketSurge 유료 구독 데이터입니다. 무료 데이터로는 제공 불가">EPS</th>
-          <th onclick="setScrSort('rs',this)"     style="width:90px">IBD RS</th>
+          <th onclick="setScrSort('comp',this)"   style="width:36px">Comp</th>
+          <th onclick="setScrSort('eps',this)"    style="width:36px">EPS</th>
+          <th onclick="setScrSort('rs',this)"     class="sorted" style="width:90px">IBD RS</th>
           <th onclick="setScrSort('rs_now',this)" style="width:90px">RS now</th>
-          <th onclick="setScrSort('rs_line_score',this)" class="sorted" style="width:80px">RS Line<br>점수</th>
+          <th onclick="setScrSort('rs_line_score',this)" style="width:80px">RS Line<br>점수</th>
           <th style="width:70px">Stage</th>
           <th style="width:90px">Phase</th>
           <th style="width:60px">RS신호</th>
@@ -4408,8 +4473,8 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
           <th style="width:160px">패턴 셋업</th>
           <th onclick="setScrSort('h52_pct',this)" style="width:55px">피벗%</th>
           <th style="width:100px">Ind Grp</th>
-          <th style="width:36px" title="Sales/Margin/ROE 등급. IBD MarketSurge 유료 구독 데이터로 무료 제공 불가">SMR</th>
-          <th style="width:50px" title="매집/분배 등급 (acc2=A, acc=B, 추정값)">Acc/Dis*</th>
+          <th style="width:36px">SMR</th>
+          <th style="width:50px">Acc/Dis</th>
           <th onclick="setScrSort('score',this)"  style="width:44px;text-align:right">점수</th>
         </tr>
       </thead>
@@ -9017,6 +9082,8 @@ let KR  = { data:[], meta:{}, sectors:[], sortKey:'rs_score', filters:new Set(),
 let KR2 = { data:[], meta:{}, sectors:[], sortKey:'rs_score', filters:new Set(), capFilter:'all', secFilter:'all' };
 let activeMkt = 'us';
 let usPhaseFilter = 'all';
+let krPhaseFilter = 'all';
+let kr2PhaseFilter = 'all';
 
 const PAT_INFO = {
   vcp: {
@@ -9412,6 +9479,39 @@ function setPhaseFilter(phase, el) {
   renderUSMomentum();
 }
 
+function setPhaseFilterKR(phase, el, mkt) {
+  if (mkt === 'kr')  krPhaseFilter  = phase;
+  else               kr2PhaseFilter = phase;
+  document.querySelectorAll(`[id^="${mkt}-phase-"]`).forEach(b => b.classList.remove('on'));
+  if (el) el.classList.add('on');
+  if (mkt === 'kr') renderKRMomentum();
+  else              renderKR2Momentum();
+}
+
+function applyPresetKR(preset, el, mkt) {
+  const S = mkt === 'kr' ? KR : KR2;
+  S.filters.clear();
+  document.querySelectorAll(`[id^="${mkt}-f-"]`).forEach(b => b.classList.remove('on'));
+  // 같은 패널 안의 preset 버튼만 끄도록
+  const panelSel = mkt === 'kr' ? '#kr-sub-momentum .preset-btn' : '#kr2-sub-momentum .preset-btn';
+  document.querySelectorAll(panelSel).forEach(b => b.classList.remove('on'));
+  if (el) el.classList.add('on');
+  if (mkt === 'kr')  krPhaseFilter  = 'all';
+  else               kr2PhaseFilter = 'all';
+  document.querySelectorAll(`[id^="${mkt}-phase-"]`).forEach(b => b.classList.remove('on'));
+  document.getElementById(`${mkt}-phase-all`)?.classList.add('on');
+  const add = k => { S.filters.add(k); document.getElementById(`${mkt}-f-${k}`)?.classList.add('on'); };
+  if (preset === 'acc_rsl')      { add('acc'); add('h52'); }
+  if (preset === 'triple')       { add('acc'); add('h52'); add('rsl'); }
+  if (preset === 's2_s1s2')      { add('s2early'); add('s1s2'); }
+  if (preset === 'rsl')          { add('rsl'); }
+  if (preset === 'phase4')       { setPhaseFilterKR('4',     document.getElementById(`${mkt}-phase-4`),     mkt); return; }
+  if (preset === 'phase_change') { setPhaseFilterKR('4plus', document.getElementById(`${mkt}-phase-4plus`), mkt); return; }
+  if (preset === 'phase4plus')   { setPhaseFilterKR('4plus', document.getElementById(`${mkt}-phase-4plus`), mkt); return; }
+  if (mkt === 'kr') renderKRMomentum();
+  else              renderKR2Momentum();
+}
+
 function applyPreset(preset, el) {
   US.filters.clear();
   document.querySelectorAll('[id^="us-f-"]').forEach(b => b.classList.remove('on'));
@@ -9675,21 +9775,31 @@ function renderKR2Sectors() { renderSectorTable('kr2-sector-page', buildKRSector
 
 function krFiltered(mkt) {
   const S = mkt === 'kr' ? KR : KR2;
+  const phaseFilter = mkt === 'kr' ? krPhaseFilter : kr2PhaseFilter;
   return S.data.filter(s => {
-    if (S.filters.has('s2')    && !s.is_stage2)                   return false;
-    if (S.filters.has('acc')   && !s.acc)                         return false;
-    if (S.filters.has('acc2')  && !s.acc2)                        return false;
-    if (S.filters.has('h52')   && !s.h52_new)                     return false;
-    if (S.filters.has('rsl')   && !s.rs_line_lead)                return false;
-    if (S.filters.has('rs70')  && (s.rs_score || 0) < 70)         return false;
-    if (S.filters.has('rs80')  && (s.rs_score || 0) < 80)         return false;
-    if (S.filters.has('rs90')  && (s.rs_score || 0) < 90)         return false;
-    if (S.filters.has('large') && (s.mktcap || 0) < 10000)        return false;
+    if (S.filters.has('s2')      && !s.is_stage2)                  return false;
+    if (S.filters.has('acc')     && !s.acc)                        return false;
+    if (S.filters.has('acc2')    && !s.acc2)                       return false;
+    if (S.filters.has('h52')     && !s.h52_new)                    return false;
+    if (S.filters.has('rsl')     && !(s.rs_line_lead || (s.rs_now != null && s.rs_score != null && s.rs_now > s.rs_score))) return false;
+    // s2early: pass_dots >= 4 이면서 Stage2 아닌 것
+    if (S.filters.has('s2early') && !((s.pass_dots && s.pass_dots.filter(Boolean).length >= 4) && !s.is_stage2)) return false;
+    // s1s2: pass_dots 3~4개 + !is_stage2
+    if (S.filters.has('s1s2')    && !((s.pass_dots && s.pass_dots.filter(Boolean).length >= 3 && s.pass_dots.filter(Boolean).length <= 4) && !s.is_stage2)) return false;
+    // ma200: above_ma200
+    if (S.filters.has('ma200')   && !(s.stage2 && s.stage2.above_ma200)) return false;
+    if (S.filters.has('rs70')    && (s.rs_score || 0) < 70)        return false;
+    if (S.filters.has('rs80')    && (s.rs_score || 0) < 80)        return false;
+    if (S.filters.has('rs90')    && (s.rs_score || 0) < 90)        return false;
+    if (S.filters.has('large')   && (s.mktcap || 0) < 10000)       return false;
+    if (S.filters.has('mega')    && (s.mktcap || 0) < 100000)      return false;
     const cap = s.mktcap || 0, cf = S.capFilter;
     if (cf === 'mega'  && cap < 100000)                            return false;
     if (cf === 'large' && (cap < 10000 || cap >= 100000))          return false;
     if (cf === 'mid'   && (cap < 1000  || cap >= 10000))           return false;
     if (cf === 'small' && cap >= 1000)                             return false;
+    // Phase 필터
+    if (phaseFilter !== 'all' && calcPhase(s) !== phaseFilter)     return false;
     return true;
   });
 }
@@ -9698,6 +9808,8 @@ function krSortBase(d, key) {
   return [...d].sort((a, b) => {
     if (key === 'rs_score') return (b.rs_score || 0) - (a.rs_score || 0);
     if (key === 'ibd_rs')   return (b.ibd_rs   || 0) - (a.ibd_rs   || 0);
+    if (key === 'rs_now')   return (b.rs_now   || 0) - (a.rs_now   || 0);
+    if (key === 'gap')      return ((b.rs_now||0) - (b.rs_score||0)) - ((a.rs_now||0) - (a.rs_score||0));
     if (key === 'w1')       return (b.w1       || 0) - (a.w1       || 0);
     if (key === 'w3')       return (b.w3       || 0) - (a.w3       || 0);
     if (key === 'mktcap')   return (b.mktcap   || 0) - (a.mktcap   || 0);
@@ -9760,12 +9872,35 @@ function renderKRMomentum() {
   const list = krSortBase(krFiltered('kr'), KR.sortKey || 'rs_score');
   setText('kr-res-count', list.length);
   renderKRList('kr-stock-list', list, KR.capFilter || 'all', 'kr');
+  updateKRStats('kr');
 }
 
 function renderKR2Momentum() {
   const list = krSortBase(krFiltered('kr2'), KR2.sortKey || 'rs_score');
   setText('kr2-res-count', list.length);
   renderKRList('kr2-stock-list', list, KR2.capFilter || 'all', 'kr2');
+  updateKRStats('kr2');
+}
+
+// ─── KR/KR2 통계 카드 업데이트 ───
+function updateKRStats(mkt) {
+  const S = mkt === 'kr' ? KR : KR2;
+  const data = S.data || [];
+  if (!data.length) return;
+  const total = data.length;
+  const avgRS = total ? Math.round(data.reduce((sum,s)=>sum+(s.rs_score||0),0)/total) : 0;
+  const stage2 = data.filter(s => s.is_stage2).length;
+  const acc    = data.filter(s => s.acc).length;
+  const h52    = data.filter(s => s.h52_new).length;
+  const rsl    = data.filter(s => s.rs_line_lead).length;
+  const large  = data.filter(s => (s.mktcap || 0) >= 10000).length;  // 1조+ (단위:억원)
+  setText(`${mkt}-s-total`, total.toLocaleString());
+  setText(`${mkt}-s-avgrs`, avgRS);
+  setText(`${mkt}-s-stage2`, stage2.toLocaleString());
+  setText(`${mkt}-s-acc`, acc.toLocaleString());
+  setText(`${mkt}-s-h52`, h52.toLocaleString());
+  setText(`${mkt}-s-rsl`, rsl.toLocaleString());
+  setText(`${mkt}-s-large`, large.toLocaleString());
 }
 
 // ════════════════════════════════════════════════════════
@@ -10657,7 +10792,7 @@ function renderBacktest() {
 // 스크리너 탭 전용
 // ════════════════════════════════════════════════════════
 
-let scrSortKey   = 'rs_line_score';
+let scrSortKey   = 'rs';
 let scrSortDesc  = true;
 let scrRsFilter  = 'all';      // 기본: 전체 (데이터에 맞게)
 let scrPhaseFilter = 'all';
@@ -10758,7 +10893,7 @@ function scrSorted(d) {
   const get = (s) => {
     if (k === 'ticker')        return s.ticker || '';
     if (k === 'price')         return s.price || 0;
-    if (k === 'comp')          return s.comp != null ? s.comp : calcScrScore(s);
+    if (k === 'comp')          return s.comp || 0;
     if (k === 'eps')           return s.eps_rank || 0;
     if (k === 'rs')            return s.rs || 0;
     if (k === 'rs_now')        return s.rs_now || 0;
@@ -10852,7 +10987,7 @@ function scrRowHTML(s) {
       <span class="scr-ind">${s.industry||s.ind_grp||''}</span>
     </td>
     <td style="font-weight:600">${price}</td>
-    <td>${gradeColor(s.comp != null ? (s.comp >= 80 ? 'A+' : s.comp >= 60 ? 'A' : s.comp >= 40 ? 'B' : 'C') : (score >= 80 ? 'A+' : score >= 60 ? 'A' : score >= 40 ? 'B' : score >= 20 ? 'C' : null))}</td>
+    <td>${gradeColor(s.comp != null ? (s.comp >= 80 ? 'A+' : s.comp >= 60 ? 'A' : s.comp >= 40 ? 'B' : 'C') : null)}</td>
     <td>${gradeColor(s.eps_rank != null ? (s.eps_rank >= 80 ? 'A+' : s.eps_rank >= 60 ? 'A' : s.eps_rank >= 40 ? 'B' : 'C') : null)}</td>
     <td>${rsBarHTML(rs)}</td>
     <td>${rsBarHTML(rsNow)}</td>
@@ -10870,7 +11005,7 @@ function scrRowHTML(s) {
     <td>${pivotPct}</td>
     <td style="font-size:10px;color:#666">${(s.industry||s.ind_grp||'').slice(0,16)}</td>
     <td>${gradeColor(s.smr)}</td>
-    <td>${gradeColor(s.acc_dis != null ? s.acc_dis : (s.acc2 ? 'A' : s.acc ? 'B' : null))}</td>
+    <td>${gradeColor(s.acc_dis)}</td>
     <td style="text-align:right"><span class="scr-score" style="color:${scoreColor}">${score}</span></td>
   </tr>`;
 }
@@ -11233,7 +11368,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-27y] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-28a] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
