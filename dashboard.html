@@ -4420,6 +4420,9 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 <!-- ══ 스크리너 탭 패널 ══ -->
 <div class="top-panel" id="top-panel-screener">
 
+  <!-- Sticky 그룹: 시장 토글 + 메인 toolbar + Phase 필터 toolbar -->
+  <div class="scr-sticky-wrap">
+
   <!-- ═══ 시장 토글 (US / KOSPI / KOSDAQ) ═══ -->
   <div class="market-tabs" style="border-bottom:2px solid #e0e0d8">
     <div class="mkt-tab us on" id="scr-mkt-us" onclick="setScrMarket('us',this)">
@@ -4434,9 +4437,6 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
       🇰🇷 KOSDAQ <span class="mkt-badge" id="scr-mkt-kr2-badge">—</span>
     </div>
   </div>
-
-  <!-- Sticky 그룹: 메인 toolbar + Phase 필터 toolbar -->
-  <div class="scr-sticky-wrap">
 
   <!-- 상단 툴바 -->
   <div class="scr-toolbar">
@@ -11446,7 +11446,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-28c] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-28d] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
