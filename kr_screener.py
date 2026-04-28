@@ -531,6 +531,59 @@ def load_benchmark(start_date, end_date):
 
 
 # ════════════════════════════════════════════════════════════
+# RS Line 점수 (momentum_score_v2) - 0~100 종합 모멘텀
+# 미국 screener.py 와 동일 공식
+# ════════════════════════════════════════════════════════════
+def momentum_score_v2(rs_now, rs_line_score, rs_line_1w, rs_line_3w):
+    """
+    RS Line 점수 — 0~100 종합 모멘텀 점수
+    1) RS 절대 강도 (40점)
+    2) 1주 RS Line 변화율 (25점)
+    3) 1~3주 RS Line 변화율 (20점)
+    4) 가속 보너스 (20점)
+    """
+    if rs_line_score is None or rs_line_1w is None or rs_line_3w is None:
+        return None
+    if rs_line_1w == 0 or rs_line_3w == 0:
+        return None
+
+    score = 0
+
+    # 1️⃣ RS 절대 강도 (최대 40점)
+    if rs_now is not None:
+        if   rs_now >= 90: score += 40
+        elif rs_now >= 85: score += 32
+        elif rs_now >= 80: score += 24
+        else:              score += 12
+    else:
+        score += 12
+
+    # 2️⃣ 최근 1주 RS 변화율 (최대 25점)
+    rs_chg_0_1w = (rs_line_score - rs_line_1w) / abs(rs_line_1w) * 100
+    if   rs_chg_0_1w >= 2.0:  score += 25
+    elif rs_chg_0_1w >= 1.0:  score += 18
+    elif rs_chg_0_1w >= 0.3:  score += 10
+    elif rs_chg_0_1w >= -0.3: score += 5
+    else:                      score += 0
+
+    # 3️⃣ 1~3주 RS 변화율 (최대 20점)
+    rs_chg_1w_3w = (rs_line_1w - rs_line_3w) / abs(rs_line_3w) * 100
+    if   rs_chg_1w_3w >= 1.5:  score += 20
+    elif rs_chg_1w_3w >= 0.8:  score += 14
+    elif rs_chg_1w_3w >= 0.2:  score += 8
+    elif rs_chg_1w_3w >= -0.2: score += 3
+    else:                       score += 0
+
+    # 4️⃣ 가속 보너스 (최대 20점)
+    if rs_chg_0_1w > rs_chg_1w_3w:
+        score += 15
+        if rs_line_3w < rs_line_1w < rs_line_score and rs_chg_0_1w >= 0.5:
+            score += 5
+
+    return min(100, max(0, int(round(score))))
+
+
+# ════════════════════════════════════════════════════════════
 # 종목별 지표 계산 (핵심)
 # ════════════════════════════════════════════════════════════
 def process_stock(ticker, name, market, benchmark):
@@ -628,6 +681,12 @@ def process_stock(ticker, name, market, benchmark):
         rs_pct_change = 0.0
         h52_new = False
         rs_line_lead = False
+        rs_line_score = None
+        rs_line_1w    = None
+        rs_line_3w    = None
+        rs_line_6w    = None
+        rs_line_pct   = None
+        rs_line_high_flag = False
         try:
             common_idx = close.index.intersection(benchmark.index)
             if len(common_idx) >= 20:
@@ -642,6 +701,25 @@ def process_stock(ticker, name, market, benchmark):
                 rs_52w_high = float(rs_line.iloc[-min(252, len(rs_line)):].max())
                 h52_pct = (latest - high_52w) / high_52w * 100 if high_52w > 0 else 0
                 rs_line_lead = (rs_now_val >= rs_52w_high * 0.98) and (h52_pct < -5)
+
+                # ─── v10 NEW: RS Line 시계열 4시점 (미국 버전과 동일) ───
+                def _rl_get(n):
+                    if len(rs_line) <= n: return None
+                    v = rs_line.iloc[-n-1]
+                    return float(v) if pd.notna(v) else None
+
+                rs_line_score = _rl_get(0)
+                rs_line_1w    = _rl_get(5)
+                rs_line_3w    = _rl_get(15)
+                rs_line_6w    = _rl_get(30)
+
+                # 52주 백분위
+                w52 = min(252, len(rs_line))
+                recent = rs_line.iloc[-w52:]
+                if rs_line_score is not None and len(recent) > 0:
+                    pct = float((recent < rs_line_score).sum()) / float(len(recent)) * 100
+                    rs_line_pct = int(round(pct))
+                    rs_line_high_flag = pct >= 95
         except Exception:
             pass
 
@@ -680,6 +758,17 @@ def process_stock(ticker, name, market, benchmark):
             # RS, rs_score, ibd_rs → 나중에 퍼센타일로
             "rs": 0, "rs_score": 0, "rs_now": 0, "ibd_rs": 0,
             "rs_line_lead": bool(rs_line_lead),
+            # ─── v10: RS Line raw 값 (가격 비율) ───
+            # 주의: rs_line_score 는 momentum_score_v2 (0~100) 로 변경됨
+            "rs_line_value": round(rs_line_score, 4) if rs_line_score is not None else None,
+            "rs_line_1w":    round(rs_line_1w,    4) if rs_line_1w    is not None else None,
+            "rs_line_3w":    round(rs_line_3w,    4) if rs_line_3w    is not None else None,
+            "rs_line_6w":    round(rs_line_6w,    4) if rs_line_6w    is not None else None,
+            "rs_line_pct":   rs_line_pct,
+            "rs_line_high":  bool(rs_line_high_flag),
+            # ─── v10 NEW: rs_line_score = momentum_score_v2 (0~100 종합 점수) ───
+            # rank_all() 단계에서 rs_now 채워진 후 계산됨
+            "rs_line_score": None,
             "is_stage2": False,
             "_base_stage2": bool(c1 and c2 and c3 and c4 and c5 and c6),
             "stage2": {
@@ -722,6 +811,14 @@ def rank_all(stocks):
         s["ibd_rs"]   = int(np.sum(ibd_arr < s["ibd_raw"])       / len(ibd_arr) * 100)
         s["rs"]       = s["rs_score"]   # 통일
         s["rs_now"]   = int(np.sum(w1_arr < s["w1"]) / len(w1_arr) * 100)
+
+        # ─── v10: RS Line 점수 (momentum_score_v2) - 0~100 종합 모멘텀 ───
+        s["rs_line_score"] = momentum_score_v2(
+            s["rs_now"],
+            s.get("rs_line_value"),
+            s.get("rs_line_1w"),
+            s.get("rs_line_3w"),
+        )
 
         # Stage2 RS 조건 확정
         s["stage2"]["rs_rank"] = s["rs_score"] >= RS_RANK_MIN
