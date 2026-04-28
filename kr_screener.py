@@ -531,56 +531,403 @@ def load_benchmark(start_date, end_date):
 
 
 # ════════════════════════════════════════════════════════════
-# RS Line 점수 (momentum_score_v2) - 0~100 종합 모멘텀
-# 미국 screener.py 와 동일 공식
+# 🇰🇷 한국 Market Pulse 5지표 (IBD 정통 한국판)
+#   ① 지수 Stage (KOSPI / KOSPI 200 / KOSDAQ 종합)
+#   ② Follow-Through Day (FTD)
+#   ③ Distribution Day (DD, 20거래일 윈도우)
+#   ④ ADR (Advance Decline Ratio) — Market Breadth 대체
+#   ⑤ MA 매트릭스 (3지수 × 21·50·200)
+#   + 보조: 수급 펄스 (신용잔고, 외국인/기관 매매)
 # ════════════════════════════════════════════════════════════
-def momentum_score_v2(rs_now, rs_line_score, rs_line_1w, rs_line_3w):
-    """
-    RS Line 점수 — 0~100 종합 모멘텀 점수
-    1) RS 절대 강도 (40점)
-    2) 1주 RS Line 변화율 (25점)
-    3) 1~3주 RS Line 변화율 (20점)
-    4) 가속 보너스 (20점)
-    """
-    if rs_line_score is None or rs_line_1w is None or rs_line_3w is None:
-        return None
-    if rs_line_1w == 0 or rs_line_3w == 0:
-        return None
 
-    score = 0
+def _fetch_index(symbol_yf, symbol_fdr, start_date, end_date):
+    """지수 OHLCV 로드. yfinance 메인 + FDR 폴백."""
+    def fmt(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}"
+    # 1) yfinance
+    try:
+        import yfinance as yf
+        df = yf.Ticker(symbol_yf).history(start=fmt(start_date), end=fmt(end_date))
+        if df is not None and len(df) > 50:
+            df = df.rename(columns=str.lower)
+            log.info(f"  [{symbol_yf}] yfinance 로드: {len(df)}일")
+            return df
+    except Exception as e:
+        log.warning(f"  [{symbol_yf}] yfinance 실패: {e}")
+    # 2) FDR
+    if FDR_OK:
+        try:
+            df = fdr.DataReader(symbol_fdr, start_date, end_date)
+            if df is not None and len(df) > 50:
+                df = df.rename(columns={c: c.lower() for c in df.columns})
+                log.info(f"  [{symbol_fdr}] FDR 로드: {len(df)}일")
+                return df
+        except Exception as e:
+            log.warning(f"  [{symbol_fdr}] FDR 실패: {e}")
+    return None
 
-    # 1️⃣ RS 절대 강도 (최대 40점)
-    if rs_now is not None:
-        if   rs_now >= 90: score += 40
-        elif rs_now >= 85: score += 32
-        elif rs_now >= 80: score += 24
-        else:              score += 12
+
+def _calc_index_stage(df):
+    """단일 지수의 Stage 판정 (Weinstein/Minervini 간소화).
+    Stage 1: 베이스/횡보 (200MA 옆)
+    Stage 2: 상승 추세 (21>50>200 정배열 + 종가 > 21MA)
+    Stage 3: 고점권 조정 (200MA 위지만 21<50 데드크로스 임박)
+    Stage 4: 하락 추세 (200MA 아래)
+    """
+    if df is None or len(df) < 200:
+        return {"stage": 0, "label": "데이터 부족", "ma21": None, "ma50": None, "ma200": None, "close": None}
+    close = df["close"].astype(float)
+    ma21  = close.rolling(21).mean()
+    ma50  = close.rolling(50).mean()
+    ma200 = close.rolling(200).mean()
+    c, m21, m50, m200 = float(close.iloc[-1]), float(ma21.iloc[-1]), float(ma50.iloc[-1]), float(ma200.iloc[-1])
+    # 200MA 추세 (40일 전 대비)
+    m200_uptrend = float(ma200.iloc[-40]) < m200 if len(ma200.dropna()) >= 40 else True
+
+    if c < m200 or not m200_uptrend:
+        stage, label = 4, "Stage 4 — 하락 추세 (매수 금지)"
+    elif m21 > m50 > m200 and c > m21:
+        stage, label = 2, "Stage 2 — 상승 추세"
+    elif c > m200 and m50 > m200:
+        # Stage 3: 200MA 위 + 50MA 위지만 21<50 데드크로스 위험
+        if m21 < m50 * 0.99:
+            stage, label = 3, "Stage 3 — 고점권 조정"
+        else:
+            stage, label = 2, "Stage 2 초기 — 추세 전환 중"
     else:
-        score += 12
+        stage, label = 1, "Stage 1 — 베이스/횡보"
 
-    # 2️⃣ 최근 1주 RS 변화율 (최대 25점)
-    rs_chg_0_1w = (rs_line_score - rs_line_1w) / abs(rs_line_1w) * 100
-    if   rs_chg_0_1w >= 2.0:  score += 25
-    elif rs_chg_0_1w >= 1.0:  score += 18
-    elif rs_chg_0_1w >= 0.3:  score += 10
-    elif rs_chg_0_1w >= -0.3: score += 5
-    else:                      score += 0
+    return {
+        "stage": stage, "label": label,
+        "close": round(c, 2),
+        "ma21":  round(m21, 2),
+        "ma50":  round(m50, 2),
+        "ma200": round(m200, 2),
+        "above_ma21":  bool(c > m21),
+        "above_ma50":  bool(c > m50),
+        "above_ma200": bool(c > m200),
+    }
 
-    # 3️⃣ 1~3주 RS 변화율 (최대 20점)
-    rs_chg_1w_3w = (rs_line_1w - rs_line_3w) / abs(rs_line_3w) * 100
-    if   rs_chg_1w_3w >= 1.5:  score += 20
-    elif rs_chg_1w_3w >= 0.8:  score += 14
-    elif rs_chg_1w_3w >= 0.2:  score += 8
-    elif rs_chg_1w_3w >= -0.2: score += 3
-    else:                       score += 0
 
-    # 4️⃣ 가속 보너스 (최대 20점)
-    if rs_chg_0_1w > rs_chg_1w_3w:
-        score += 15
-        if rs_line_3w < rs_line_1w < rs_line_score and rs_chg_0_1w >= 0.5:
-            score += 5
+def _detect_kr_ftd(df, plus_pct=1.5):
+    """KR Follow-Through Day 검출.
+    조건:
+      1) 최근 60일 내 저점 이후 4~7거래일 후
+      2) 당일 종가 +1.5% 이상
+      3) 거래량 전일 대비 증가
+      4) 이후 저점 다시 깨지지 않음
+    """
+    if df is None or len(df) < 60:
+        return {"valid": False, "last_ftd_date": None, "days_since": None, "label": "데이터 부족"}
+    close = df["close"].astype(float)
+    vol   = df["volume"].astype(float) if "volume" in df.columns else pd.Series([1.0]*len(df), index=df.index)
+    # 60일 윈도우
+    window = min(60, len(df))
+    sub_close = close.iloc[-window:]
+    sub_vol   = vol.iloc[-window:]
+    low_idx   = sub_close.idxmin()
+    low_pos   = sub_close.index.get_loc(low_idx)
+    low_val   = float(sub_close.loc[low_idx])
 
-    return min(100, max(0, int(round(score))))
+    # 저점 이후 4~7거래일 윈도우에서 +1.5% 이상 + 거래량 증가
+    candidates = []
+    for d in range(4, 8):
+        pos = low_pos + d
+        if pos >= len(sub_close): break
+        prev_pos = pos - 1
+        if prev_pos < 0: continue
+        chg = (float(sub_close.iloc[pos]) / float(sub_close.iloc[prev_pos]) - 1) * 100
+        vol_up = float(sub_vol.iloc[pos]) > float(sub_vol.iloc[prev_pos])
+        if chg >= plus_pct and vol_up:
+            ftd_date = sub_close.index[pos]
+            # 이후 저점 깨짐 확인
+            broken = bool((sub_close.iloc[pos+1:] < low_val).any()) if pos+1 < len(sub_close) else False
+            candidates.append((ftd_date, chg, broken))
+
+    valid_ftds = [c for c in candidates if not c[2]]
+    if valid_ftds:
+        ftd_date, chg, _ = valid_ftds[-1]   # 가장 최근 유효 FTD
+        days_since = len(sub_close) - sub_close.index.get_loc(ftd_date) - 1
+        return {
+            "valid": True,
+            "last_ftd_date": ftd_date.strftime("%Y-%m-%d") if hasattr(ftd_date, "strftime") else str(ftd_date),
+            "days_since": int(days_since),
+            "change_pct": round(chg, 2),
+            "label": f"FTD 발생 ({days_since}일 전)",
+        }
+    return {"valid": False, "last_ftd_date": None, "days_since": None, "label": "FTD 없음 (반등 시도 대기)"}
+
+
+def _detect_kr_distribution_days(df, window_days=20, drop_pct=-0.2):
+    """KR Distribution Day 카운트.
+    조건: 종가 -0.2% 이상 하락 + 거래량 전일 대비 증가
+    윈도우: 20거래일 (한국 단축, 미국은 25)
+    만료: 25일 경과 또는 +6% 반등 시 무효화
+    """
+    if df is None or len(df) < window_days + 1:
+        return {"count": 0, "dates": [], "window_days": window_days, "status_label": "데이터 부족"}
+    close = df["close"].astype(float)
+    vol   = df["volume"].astype(float) if "volume" in df.columns else pd.Series([1.0]*len(df), index=df.index)
+    sub = df.iloc[-window_days:]
+    dd_dates = []
+    sub_close_list = list(sub["close"].astype(float))
+    sub_vol_list   = list(sub["volume"].astype(float)) if "volume" in sub.columns else [1.0]*len(sub)
+    sub_index_list = list(sub.index)
+    # 이전 일자 비교 위해 한 칸 앞 데이터 필요
+    prev_close = float(close.iloc[-window_days-1])
+    prev_vol   = float(vol.iloc[-window_days-1])
+    last_close = float(close.iloc[-1])
+    for i, (idx, c, v) in enumerate(zip(sub_index_list, sub_close_list, sub_vol_list)):
+        chg = (c / prev_close - 1) * 100
+        vol_up = v > prev_vol
+        if chg <= drop_pct and vol_up:
+            # 6% 반등 무효화 체크 (이 DD 이후 종가 +6% 이상이면 무효)
+            invalidated = (last_close / c - 1) * 100 >= 6 and i < len(sub_close_list) - 3
+            if not invalidated:
+                dd_dates.append(idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx))
+        prev_close = c
+        prev_vol   = v
+    count = len(dd_dates)
+    if count <= 2:
+        status_label = "🟢 Healthy Uptrend"
+    elif count <= 4:
+        status_label = "🟡 주의 신호"
+    elif count <= 6:
+        status_label = "🟠 Under Pressure 전환"
+    else:
+        status_label = "🔴 Correction 임박/진행"
+    return {"count": count, "dates": dd_dates, "window_days": window_days, "status_label": status_label}
+
+
+def _calc_adr(start_date, end_date, days=20):
+    """ADR (Advance Decline Ratio) — KOSPI+KOSDAQ 통합 등락주선 비율 평균.
+    한국 표준 지표. value = 상승종목수 / 하락종목수 × 100
+      75~80% 미만: 🟢 매수 기회 (Rally 확률 ↑)
+      80~120%: 🟡 중립
+      120% 이상: 🔴 과매수 경고
+    pykrx 사용 (느림). 실패 시 None.
+    """
+    if not PYKRX_OK:
+        return {"value": None, "label": "pykrx 미설치", "signal": "unknown", "days": days}
+    try:
+        from pykrx import stock as krx
+        # 최근 N 거래일 데이터
+        end_dt = end_date
+        start_dt = (datetime.strptime(end_date, "%Y%m%d") - timedelta(days=int(days*1.6))).strftime("%Y%m%d")
+        # KRX 등락주선
+        df = krx.get_market_ohlcv(start_dt, end_dt, "ALL")
+        if df is None or len(df) == 0:
+            return {"value": None, "label": "ADR 데이터 없음", "signal": "unknown", "days": days}
+        # 일별 상승/하락 계산은 너무 무거우니 — 간소화: 전일대비 등락률을 KRX API로 받기
+        # 대안: 최근 N일 평균 등락 비율 추정
+        # 여기서는 KOSPI 200 + KOSDAQ 150 우량주만으로 빠르게 추정
+        adr_values = []
+        ks_tickers = krx.get_index_portfolio_deposit_file("1028")[:200]  # KOSPI200
+        kq_tickers = krx.get_index_portfolio_deposit_file("2203")[:150]  # KOSDAQ150
+        all_tickers = list(set(ks_tickers + kq_tickers))[:300]
+        # 최근 N+1 영업일 가져와 비교
+        for ticker in all_tickers[:300]:
+            try:
+                df_t = krx.get_market_ohlcv(start_dt, end_dt, ticker)
+                if df_t is None or len(df_t) < 2: continue
+                # 일별 ADR 누적은 비싸니 마지막날 등락만
+                last  = float(df_t["종가"].iloc[-1])
+                prev  = float(df_t["종가"].iloc[-2])
+                adr_values.append(1 if last > prev else 0)
+            except Exception:
+                continue
+        if not adr_values:
+            return {"value": None, "label": "ADR 계산 실패", "signal": "unknown", "days": days}
+        up = sum(adr_values)
+        down = len(adr_values) - up
+        if down == 0:
+            value = 999.0
+        else:
+            value = round(up / down * 100, 1)
+        if value < 80:
+            signal, label = "green", "🟢 매수 기회 (반등 확률 ↑)"
+        elif value < 120:
+            signal, label = "yellow", "🟡 중립"
+        else:
+            signal, label = "red", "🔴 과매수 경고"
+        return {"value": value, "label": label, "signal": signal, "days": days, "up": up, "down": down}
+    except Exception as e:
+        log.warning(f"  ADR 계산 실패: {e}")
+        return {"value": None, "label": "ADR 계산 실패", "signal": "unknown", "days": days}
+
+
+def _calc_ma_matrix(stage_kospi, stage_kospi200, stage_kosdaq):
+    """3지수 × 3MA = 9 체크박스. 각 지수별 21/50/200 MA 위 여부.
+    9개 다 체크되면 완벽한 강세, 6개 이하면 Under Pressure 가능성.
+    """
+    matrix = {
+        "kospi":    [stage_kospi.get("above_ma21",    False), stage_kospi.get("above_ma50",    False), stage_kospi.get("above_ma200",    False)],
+        "kospi200": [stage_kospi200.get("above_ma21", False), stage_kospi200.get("above_ma50", False), stage_kospi200.get("above_ma200", False)],
+        "kosdaq":   [stage_kosdaq.get("above_ma21",   False), stage_kosdaq.get("above_ma50",   False), stage_kosdaq.get("above_ma200",   False)],
+    }
+    score = sum(sum(v) for v in matrix.values())
+    if score >= 9:   label = "9/9 완벽한 강세"
+    elif score >= 7: label = f"{score}/9 강세 유지"
+    elif score >= 5: label = f"{score}/9 혼조"
+    elif score >= 3: label = f"{score}/9 약세 ({9-score}개 이탈)"
+    else:            label = f"{score}/9 Correction"
+    return {"matrix": matrix, "score": score, "label": label, "max": 9}
+
+
+def _fetch_supply_data():
+    """수급 펄스 — 신용잔고/외국인/기관. pykrx 사용. 실패 시 None.
+    Q3=A: 데이터 없으면 None 반환 → dashboard에서 '—' 표시.
+    """
+    if not PYKRX_OK:
+        return {"credit_balance": None, "foreigner_5d": None, "institution_5d": None, "available": False}
+    try:
+        from pykrx import stock as krx
+        # 신용잔고: pykrx에는 직접 API가 없음 → 향후 KRX 정보데이터시스템 직접 호출 필요
+        # 외국인/기관 매매: 최근 5일 합계
+        end_str = latest_trading_day()
+        start_str = (datetime.strptime(end_str, "%Y%m%d") - timedelta(days=10)).strftime("%Y%m%d")
+        try:
+            df_inv = krx.get_market_trading_value_by_investor(start_str, end_str, "KOSPI")
+            if df_inv is not None and len(df_inv) > 0:
+                # 외국인/기관 5일 누적
+                foreigner_5d = float(df_inv.get("외국인합계", df_inv.get("외국인", pd.Series([0]))).sum()) / 1e8  # 억원 단위
+                institution_5d = float(df_inv.get("기관합계", df_inv.get("기관", pd.Series([0]))).sum()) / 1e8
+                return {
+                    "credit_balance": None,    # v1: 미구현 — Q3=A로 — 표시
+                    "foreigner_5d":   round(foreigner_5d, 0),
+                    "institution_5d": round(institution_5d, 0),
+                    "available": True,
+                }
+        except Exception as e:
+            log.warning(f"  수급 데이터 실패: {e}")
+        return {"credit_balance": None, "foreigner_5d": None, "institution_5d": None, "available": False}
+    except Exception as e:
+        log.warning(f"  수급 데이터 전체 실패: {e}")
+        return {"credit_balance": None, "foreigner_5d": None, "institution_5d": None, "available": False}
+
+
+def _calc_kr_regime(stages, ftd, dd, adr, ma_matrix):
+    """한국 종합 Regime 판정.
+    미국 5단계와 매핑: confirmed / resumed / pressure / rally / correction
+    핵심 입력: KOSPI Stage + ADR + DD count + MA matrix score
+    """
+    kospi_stage = stages["kospi"]["stage"]
+    dd_count = dd["count"]
+    matrix_score = ma_matrix["score"]
+    adr_val = adr.get("value") or 100   # 폴백 중립
+
+    # Stage 4 (KOSPI 하락 추세) → Correction 또는 Rally Attempt
+    if kospi_stage == 4:
+        if ftd.get("valid") and ftd.get("days_since", 99) <= 5:
+            return {"code": "rally", "label": "🟠 Rally Attempt (한국)", "color": "#B5500A", "invest_pct": "10~25%", "sub": "FTD 확정 대기 · 0~1개만 신중 진입"}
+        return {"code": "correction", "label": "🔴 Market in Correction (한국)", "color": "#A32D2D", "invest_pct": "0~15%", "sub": "신규 진입 금지 · 현금 보유"}
+
+    # Stage 2 + DD 적음 + 매트릭스 강 = Confirmed Uptrend
+    if kospi_stage == 2 and dd_count <= 3 and matrix_score >= 7:
+        return {"code": "confirmed", "label": "🟢 Confirmed Uptrend (한국)", "color": "#3B6D11", "invest_pct": "70~95%", "sub": "최적 환경 · Phase 4·4+ 종목 적극 진입"}
+
+    # Stage 2 + FTD 최근 발생 = Uptrend Resumed
+    if kospi_stage == 2 and ftd.get("valid") and ftd.get("days_since", 99) <= 10:
+        return {"code": "resumed", "label": "🟢 Uptrend Resumed (한국)", "color": "#0F6E56", "invest_pct": "55~75%", "sub": "FTD 직후 알파 구간 · 베이스 돌파 적극"}
+
+    # DD 6+ 또는 ADR 과매수
+    if dd_count >= 6 or (adr.get("value") and adr["value"] >= 130):
+        return {"code": "pressure", "label": "🟡 Under Pressure (한국)", "color": "#854F0B", "invest_pct": "25~45%", "sub": "Phase 4+ 최상위만 신중 검토 · 손절 5% 타이트"}
+
+    # 기본값: Stage 2 + 일반
+    if kospi_stage in (2, 3):
+        return {"code": "resumed", "label": "🟢 Uptrend Resumed (한국)", "color": "#0F6E56", "invest_pct": "55~75%", "sub": "FTD 직후 알파 구간 · 베이스 돌파 적극"}
+
+    return {"code": "pressure", "label": "🟡 Under Pressure (한국)", "color": "#854F0B", "invest_pct": "25~45%", "sub": "Phase 4+ 최상위만 신중 검토"}
+
+
+def calc_kr_market_pulse(start_date, end_date):
+    """🇰🇷 한국 Market Pulse 5지표 통합 계산기 (IBD 정통판).
+    반환: dashboard.html 미국 형식과 호환되는 dict.
+    """
+    log.info("\n" + "=" * 60)
+    log.info("🇰🇷 한국 Market Pulse 5지표 계산 시작")
+    log.info("=" * 60)
+
+    # ① 3지수 데이터 로드
+    log.info("[1/6] 지수 데이터 로드...")
+    df_kospi    = _fetch_index("^KS11",  "KS11",     start_date, end_date)
+    df_kospi200 = _fetch_index("^KS200", "KS200",    start_date, end_date)
+    df_kosdaq   = _fetch_index("^KQ11",  "KQ11",     start_date, end_date)
+
+    # ② 지수 Stage
+    log.info("[2/6] 지수 Stage 판정...")
+    stages = {
+        "kospi":    _calc_index_stage(df_kospi),
+        "kospi200": _calc_index_stage(df_kospi200),
+        "kosdaq":   _calc_index_stage(df_kosdaq),
+    }
+    for k, v in stages.items():
+        log.info(f"  {k:10s}: {v['label']}")
+
+    # ③ FTD (KOSPI 기준)
+    log.info("[3/6] FTD 검출 (KOSPI)...")
+    ftd = _detect_kr_ftd(df_kospi, plus_pct=1.5)
+    log.info(f"  {ftd['label']}")
+
+    # ④ DD (KOSPI 기준, 20일 윈도우)
+    log.info("[4/6] Distribution Day 카운트 (KOSPI, 20일)...")
+    dd = _detect_kr_distribution_days(df_kospi, window_days=20)
+    log.info(f"  {dd['count']}개 — {dd['status_label']}")
+
+    # ⑤ ADR (시간 소요 — 300종목 조회)
+    log.info("[5/6] ADR 계산 (Advance Decline Ratio)...")
+    adr = _calc_adr(start_date, end_date, days=20)
+    log.info(f"  ADR={adr.get('value')} — {adr.get('label')}")
+
+    # ⑥ MA 매트릭스
+    log.info("[6/6] MA 매트릭스 (3지수 × 21·50·200)...")
+    ma_matrix = _calc_ma_matrix(stages["kospi"], stages["kospi200"], stages["kosdaq"])
+    log.info(f"  {ma_matrix['label']}")
+
+    # 보조: 수급 펄스
+    log.info("[보조] 수급 펄스 (외국인/기관/신용)...")
+    supply = _fetch_supply_data()
+    if supply["available"]:
+        log.info(f"  외국인 5일 누적: {supply['foreigner_5d']}억원, 기관: {supply['institution_5d']}억원")
+    else:
+        log.info("  수급 데이터 미수신 (— 표시)")
+
+    # 종합 Regime
+    regime = _calc_kr_regime(stages, ftd, dd, adr, ma_matrix)
+    log.info(f"\n📡 한국 Regime: {regime['label']} (권장 비중: {regime['invest_pct']})")
+
+    # ────────────────────────────────────────────────────────────
+    # dashboard.html 호환 출력 (미국 calc_kospi_signal 형식 + 5지표 확장)
+    # ────────────────────────────────────────────────────────────
+    # 호환용 ndfi/s5fi/overall 값 (Regime → 숫자 매핑)
+    regime_to_value = {"confirmed": 90, "resumed": 70, "pressure": 40, "rally": 25, "correction": 10}
+    ndfi_val = regime_to_value.get(regime["code"], 50)
+    overall = {"confirmed": "green", "resumed": "green", "pressure": "yellow", "rally": "blue", "correction": "red"}[regime["code"]]
+
+    return {
+        # 🆕 한국 5지표 + 보조
+        "kr_pulse": {
+            "regime":        regime,
+            "index_stage":   stages,
+            "ftd":           ftd,
+            "distribution":  dd,
+            "adr":           adr,
+            "ma_matrix":     ma_matrix,
+            "supply":        supply,
+        },
+        # 🔄 호환성 (dashboard 기존 코드용)
+        "value":         ndfi_val,
+        "above":         ndfi_val,
+        "total":         100,
+        "signal":        overall,
+        "label":         regime["label"],
+        "action":        regime["sub"],
+        "overall":       overall,
+        "overall_label": regime["label"],
+        "invest_pct":    regime["invest_pct"],
+        "ndfi":          {"value": ndfi_val, "action": regime["sub"]},
+        "s5fi":          {"value": ndfi_val, "action": regime["sub"]},
+    }
 
 
 # ════════════════════════════════════════════════════════════
@@ -681,12 +1028,6 @@ def process_stock(ticker, name, market, benchmark):
         rs_pct_change = 0.0
         h52_new = False
         rs_line_lead = False
-        rs_line_score = None
-        rs_line_1w    = None
-        rs_line_3w    = None
-        rs_line_6w    = None
-        rs_line_pct   = None
-        rs_line_high_flag = False
         try:
             common_idx = close.index.intersection(benchmark.index)
             if len(common_idx) >= 20:
@@ -701,25 +1042,6 @@ def process_stock(ticker, name, market, benchmark):
                 rs_52w_high = float(rs_line.iloc[-min(252, len(rs_line)):].max())
                 h52_pct = (latest - high_52w) / high_52w * 100 if high_52w > 0 else 0
                 rs_line_lead = (rs_now_val >= rs_52w_high * 0.98) and (h52_pct < -5)
-
-                # ─── v10 NEW: RS Line 시계열 4시점 (미국 버전과 동일) ───
-                def _rl_get(n):
-                    if len(rs_line) <= n: return None
-                    v = rs_line.iloc[-n-1]
-                    return float(v) if pd.notna(v) else None
-
-                rs_line_score = _rl_get(0)
-                rs_line_1w    = _rl_get(5)
-                rs_line_3w    = _rl_get(15)
-                rs_line_6w    = _rl_get(30)
-
-                # 52주 백분위
-                w52 = min(252, len(rs_line))
-                recent = rs_line.iloc[-w52:]
-                if rs_line_score is not None and len(recent) > 0:
-                    pct = float((recent < rs_line_score).sum()) / float(len(recent)) * 100
-                    rs_line_pct = int(round(pct))
-                    rs_line_high_flag = pct >= 95
         except Exception:
             pass
 
@@ -758,17 +1080,6 @@ def process_stock(ticker, name, market, benchmark):
             # RS, rs_score, ibd_rs → 나중에 퍼센타일로
             "rs": 0, "rs_score": 0, "rs_now": 0, "ibd_rs": 0,
             "rs_line_lead": bool(rs_line_lead),
-            # ─── v10: RS Line raw 값 (가격 비율) ───
-            # 주의: rs_line_score 는 momentum_score_v2 (0~100) 로 변경됨
-            "rs_line_value": round(rs_line_score, 4) if rs_line_score is not None else None,
-            "rs_line_1w":    round(rs_line_1w,    4) if rs_line_1w    is not None else None,
-            "rs_line_3w":    round(rs_line_3w,    4) if rs_line_3w    is not None else None,
-            "rs_line_6w":    round(rs_line_6w,    4) if rs_line_6w    is not None else None,
-            "rs_line_pct":   rs_line_pct,
-            "rs_line_high":  bool(rs_line_high_flag),
-            # ─── v10 NEW: rs_line_score = momentum_score_v2 (0~100 종합 점수) ───
-            # rank_all() 단계에서 rs_now 채워진 후 계산됨
-            "rs_line_score": None,
             "is_stage2": False,
             "_base_stage2": bool(c1 and c2 and c3 and c4 and c5 and c6),
             "stage2": {
@@ -811,14 +1122,6 @@ def rank_all(stocks):
         s["ibd_rs"]   = int(np.sum(ibd_arr < s["ibd_raw"])       / len(ibd_arr) * 100)
         s["rs"]       = s["rs_score"]   # 통일
         s["rs_now"]   = int(np.sum(w1_arr < s["w1"]) / len(w1_arr) * 100)
-
-        # ─── v10: RS Line 점수 (momentum_score_v2) - 0~100 종합 모멘텀 ───
-        s["rs_line_score"] = momentum_score_v2(
-            s["rs_now"],
-            s.get("rs_line_value"),
-            s.get("rs_line_1w"),
-            s.get("rs_line_3w"),
-        )
 
         # Stage2 RS 조건 확정
         s["stage2"]["rs_rank"] = s["rs_score"] >= RS_RANK_MIN
@@ -972,9 +1275,15 @@ def run_screening(max_stocks=9999, verbose=True):
     log.info("📈 RS 퍼센타일 계산...")
     results = rank_all(results)
 
-    # 6. KOSPI 신호등
-    log.info("\n📡 KOSPI 신호등 계산...")
-    market_signal = calc_kospi_signal(start_date, end_date)
+    # 6. 🇰🇷 한국 Market Pulse — IBD 정통 5지표 (v29)
+    #    ① 지수 Stage  ② FTD  ③ DD(20일)  ④ ADR  ⑤ MA 매트릭스
+    #    + 보조: 수급 펄스 (외국인/기관/신용)
+    log.info("\n📡 한국 Market Pulse 5지표 계산...")
+    try:
+        market_signal = calc_kr_market_pulse(start_date, end_date)
+    except Exception as e:
+        log.error(f"  Market Pulse 5지표 실패 — 기존 신호등으로 폴백: {e}")
+        market_signal = calc_kospi_signal(start_date, end_date)
 
     # 7. 섹터 분석
     log.info("🏭 섹터 집계...")
