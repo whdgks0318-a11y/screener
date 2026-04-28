@@ -1,0 +1,85 @@
+ticker,name,asset_class
+QQQ,Invesco QQQ Trust,나스닥100
+SPY,SPDR S&P 500 ETF,S&P 500
+VOO,Vanguard S&P 500 ETF,S&P 500
+IWM,iShares Russell 2000,러셀2000
+DIA,SPDR Dow Jones,다우30
+VTI,Vanguard Total Stock,전체시장
+XLK,Technology Select Sector,미국 기술주
+XLF,Financial Select Sector,금융
+XLE,Energy Select Sector,에너지
+XLV,Health Care Select Sector,헬스케어
+XLI,Industrial Select Sector,산업재
+XLB,Materials Select Sector,소재
+XLU,Utilities Select Sector,유틸리티
+XLRE,Real Estate Select Sector,리츠
+XLC,Communication Select Sector,커뮤니케이션
+XLY,Consumer Discretionary,경기소비재
+XLP,Consumer Staples,필수소비재
+SMH,VanEck Semiconductors,반도체 (VanEck)
+SOXX,iShares Semiconductors,반도체
+HACK,ETFMG Cyber Security,사이버보안
+CIBR,First Trust Cyber,사이버보안 (CIBR)
+XBI,SPDR S&P Biotech,바이오테크
+IBB,iShares Biotech,바이오테크 (IBB)
+ARKG,ARK Genomic Revolution,게놈/유전자
+GLD,SPDR Gold Shares,금
+SLV,iShares Silver Trust,은
+GDX,VanEck Gold Miners,금광주
+GDXJ,VanEck Junior Gold Miners,주니어 금광주
+USO,US Oil Fund,원유 (WTI)
+UCO,ProShares Ultra Crude Oil,2x 원유
+XOP,SPDR Oil Gas Exploration,석유 탐사
+OIH,VanEck Oil Services,석유 서비스
+LIT,Global X Lithium & Battery,리튬/배터리
+ICLN,iShares Clean Energy,청정에너지
+TAN,Invesco Solar,태양광
+QCLN,First Trust Clean Energy,청정에너지 (QCLN)
+CNRG,SPDR S&P Kensho Clean,클린 인프라
+ARKK,ARK Innovation,혁신 성장주
+ARKW,ARK Next Generation Internet,차세대 인터넷
+ARKF,ARK Fintech Innovation,핀테크
+ARKQ,ARK Autonomous Tech,자율주행/로봇
+MAGS,Roundhill Magnificent 7,Magnificent 7
+IBIT,iShares Bitcoin,비트코인
+BITO,ProShares Bitcoin Strategy,비트코인 (BITO)
+EWJ,iShares MSCI Japan,일본
+EWY,iShares MSCI South Korea,한국 (MSCI)
+EWZ,iShares MSCI Brazil,브라질
+EWG,iShares MSCI Germany,독일
+EWU,iShares MSCI UK,영국
+EWC,iShares MSCI Canada,캐나다
+EEM,iShares MSCI Emerging,이머징마켓
+VWO,Vanguard FTSE Emerging,이머징 (VWO)
+ACWX,iShares MSCI ACWI ex US,선진국 (미국 외)
+EWT,iShares MSCI Taiwan,대만
+EWH,iShares MSCI Hong Kong,홍콩
+INDA,iShares MSCI India,인도
+URA,Global X Uranium,우라늄
+URNM,Sprott Uranium Miners,우라늄 광산
+COPX,Global X Copper Miners,구리 광업
+REMX,VanEck Rare Earth,희토류
+PICK,iShares MSCI Metals,산업금속
+BOTZ,Global X Robotics & AI,로봇/AI
+ROBO,ROBO Global Robotics,로봇 (ROBO)
+AIQ,Global X AI & Tech,인공지능
+HYG,iShares iBoxx HY Bond,하이일드 채권
+TLT,iShares 20+ Year Treasury,장기 국채
+IEF,iShares 7-10 Year Treasury,중기 국채
+SHY,iShares 1-3 Year Treasury,단기 국채
+TIP,iShares TIPS Bond,물가연동채
+LQD,iShares iBoxx Investment Grade,투자등급 채권
+VNQ,Vanguard Real Estate,리츠 (VNQ)
+FXI,iShares China Large-Cap,중국 대형주
+KWEB,KraneShares CSI China Internet,중국 인터넷
+CQQQ,Invesco China Technology,중국 기술주
+JETS,US Global Jets,항공
+DRAM,Roundhill Memory ETF,메모리 반도체
+MOO,VanEck Agribusiness,농업
+DBA,Invesco DB Agriculture,농산물
+PALL,Aberdeen Palladium,팔라듐
+PPLT,Aberdeen Platinum,플래티넘
+SPYG,SPDR S&P 500 Growth,미국 성장주
+SPYV,SPDR S&P 500 Value,미국 가치주
+VUG,Vanguard Growth,성장주 (VUG)
+VTV,Vanguard Value,가치주 (VTV)
