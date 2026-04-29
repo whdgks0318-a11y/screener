@@ -57,6 +57,40 @@ SIGNAL_GREEN    = 50
 SIGNAL_RED      = 80
 SIGNAL_BLUE     = 20
 
+# ═══════════════════════════════════════════════════════════════════
+# [Phase D-1 Tier 0 Fallback, v29-phaseD]
+# KRX 인프라 장애 + 캐시 미생성 시 사용할 하드코딩 우량주 리스트.
+# 정확도 목적이 아니라 ADR null 방지용. 정상 KRX 작동 시 자동으로
+# pykrx + 캐시(kr_index_cache.json)로 갱신되므로 이 상수 사용 안 됨.
+#
+# 분기마다 1회 수동 업데이트 권장 (시총 순위 변동 반영).
+# 일부 ticker가 부정확해도 yfinance에서 skip되어 ADR 계산에는 영향 없음.
+# ═══════════════════════════════════════════════════════════════════
+KR_INDEX_HARDCODED = {
+    # KOSPI 시총 상위 ~50종목
+    "kospi200": [
+        "005930", "000660", "005935", "373220", "207940",  # 삼성전자, SK하이닉스, 삼성전자우, LG에너지솔루션, 삼성바이오로직스
+        "005380", "000270", "035420", "035720", "003670",  # 현대차, 기아, NAVER, 카카오, POSCO홀딩스
+        "051910", "006400", "105560", "055550", "028260",  # LG화학, 삼성SDI, KB금융, 신한지주, 삼성물산
+        "012330", "086790", "015760", "032830", "017670",  # 현대모비스, 하나금융지주, 한국전력공사, 삼성생명, SK텔레콤
+        "009150", "011200", "003550", "010950", "018260",  # 삼성전기, HMM, LG, S-Oil, 삼성SDS
+        "024110", "030200", "097950", "023530", "009540",  # 기업은행, KT, CJ제일제당, 롯데쇼핑, HD한국조선해양
+        "329180", "042660", "010140", "012450", "064350",  # HD현대중공업, 한화오션, 삼성중공업, 한화에어로스페이스, 현대로템
+        "267260", "138040", "316140", "086280", "161390",  # HD현대일렉트릭, 메리츠금융지주, 우리금융지주, 현대글로비스, 한국타이어앤테크놀로지
+        "271560", "251270", "047810", "004020", "033780",  # 오리온, 넷마블, 한국항공우주, 현대제철, KT&G
+        "000810", "066570", "034730", "017900", "010130",  # 삼성화재, LG전자, SK, 한진, 고려아연
+    ],
+    # KOSDAQ 시총 상위 ~30종목
+    "kosdaq150": [
+        "247540", "086520", "196170", "022100", "058470",  # 에코프로비엠, 에코프로, 알테오젠, 포스코DX, 리노공업
+        "277810", "035900", "041510", "263750", "293490",  # 레인보우로보틱스, JYP Ent., 에스엠, 펄어비스, 카카오게임즈
+        "240810", "357780", "028300", "067310", "145020",  # 원익IPS, 솔브레인, HLB, 하나마이크론, 휴젤
+        "122870", "095340", "000250", "086900", "064550",  # 와이지엔터테인먼트, ISC, 삼천당제약, 메디톡스, 바이오니아
+        "098460", "348370", "089030", "060280", "178320",  # 고영, 엔켐, 테크윙, 큐렉소, 서울바이오시스
+        "039200", "192820", "066970", "112040", "137310",  # 오스코텍, 코스맥스, 엘앤에프, 위메이드, 에스디바이오센서
+    ],
+}
+
 # FDR Dept 컬럼 실제 값 확인된 매핑
 FDR_DEPT_MAP = {
     # KOSPI
@@ -701,21 +735,23 @@ def _detect_kr_distribution_days(df, window_days=20, drop_pct=-0.2):
 
 
 def _get_index_components(cache_path="kr_index_cache.json"):
-    """KOSPI 200 + KOSDAQ 150 구성종목 리스트 (캐시 fallback 포함).
+    """KOSPI 200 + KOSDAQ 150 구성종목 리스트 (3단 fallback).
 
-    [Phase D-1 캐시 보강, v29-phaseD]
-    1. pykrx 시도 → 성공하면 캐시 저장 + 반환
-    2. pykrx 실패 시 캐시 사용 (만료된 것도 OK, 없는 것보다 나음)
-    3. 둘 다 실패면 빈 리스트 + source='unavailable'
+    [Phase D-1 캐시 + Tier 0, v29-phaseD]
+    1. pykrx 시도          → 성공 시 캐시 갱신 + 반환 (Tier 1, 정확)
+    2. pykrx 실패 + 캐시 사용 → 30일 만료 OK (Tier 2, 약간 outdated)
+    3. 캐시도 없으면 하드코딩 → KR_INDEX_HARDCODED (Tier 0, 최후 수단)
+    4. (이론상 불가능) 모두 실패면 빈 리스트
 
-    구성종목은 분기당 한 번 정도만 변경되므로 캐시가 30일 만료되어도
-    ADR 정확도 영향 미미.
+    Tier 0 (하드코딩)은 KRX 인프라 장애 + 첫 실행 환경에서 ADR null 방지용.
+    정상 KRX 작동 시 자동으로 Tier 1 캐시로 덮어씀.
 
     Returns:
         (ks_tickers, kq_tickers, source)
-        source: 'pykrx_fresh' | 'cache_fresh' | 'cache_stale_<N>d' | 'unavailable'
+        source: 'pykrx_fresh' | 'cache_fresh' | 'cache_stale_<N>d'
+              | 'hardcoded_tier0' | 'unavailable'
     """
-    # ── 1) pykrx 호출 시도 ──
+    # ── 1) pykrx 호출 시도 (Tier 1) ──
     if PYKRX_OK:
         try:
             from pykrx import stock as krx
@@ -739,16 +775,14 @@ def _get_index_components(cache_path="kr_index_cache.json"):
         except Exception as e:
             log.warning(f"    [ADR] pykrx 구성종목 실패: {type(e).__name__}: {e}")
 
-    # ── 2) 캐시 fallback ──
+    # ── 2) 캐시 fallback (Tier 2) ──
     if os.path.exists(cache_path):
         try:
             with open(cache_path, "r", encoding="utf-8") as f:
                 cached = json.load(f)
             ks = list(cached.get("kospi200")  or [])
             kq = list(cached.get("kosdaq150") or [])
-            if not ks and not kq:
-                log.warning("    [ADR] 캐시 비어있음")
-            else:
+            if ks or kq:
                 saved_at = cached.get("saved_at", "")
                 try:
                     saved_dt = datetime.strptime(saved_at, "%Y-%m-%d")
@@ -759,10 +793,19 @@ def _get_index_components(cache_path="kr_index_cache.json"):
                     source = "cache_unknown_age"
                     log.info(f"    [ADR] 캐시 사용 (만료 미상): {saved_at}")
                 return ks, kq, source
+            else:
+                log.warning("    [ADR] 캐시 비어있음 (Tier 0으로 진행)")
         except Exception as e:
             log.warning(f"    [ADR] 캐시 로드 실패: {type(e).__name__}: {e}")
 
-    # ── 3) 둘 다 실패 ──
+    # ── 3) 하드코딩 fallback (Tier 0, 최후 수단) ──
+    ks_hc = list(KR_INDEX_HARDCODED.get("kospi200")  or [])
+    kq_hc = list(KR_INDEX_HARDCODED.get("kosdaq150") or [])
+    if ks_hc or kq_hc:
+        log.info(f"    [ADR] 하드코딩 fallback 사용 (KS {len(ks_hc)} + KQ {len(kq_hc)}, KRX + 캐시 둘 다 실패)")
+        return ks_hc, kq_hc, "hardcoded_tier0"
+
+    # ── 4) 모두 실패 (이론상 불가능 — KR_INDEX_HARDCODED 비어있을 때만) ──
     return [], [], "unavailable"
 
 
