@@ -961,6 +961,54 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 }
 .kr-adr-fallback strong{color:#854F0B}
 
+/* Step 5: ⑤ MA 매트릭스 (3 지수 × 3 이평선 = 9 조건) */
+.kr-ma-card{
+  border:1.5px solid #e0e0d8;border-radius:12px;padding:14px 16px;background:#fff;
+  display:flex;flex-direction:column;gap:10px
+}
+.kr-ma-card.ma-strong{border-color:#a8d4b3;background:#f7fcf8}     /* 7-9 */
+.kr-ma-card.ma-medium{border-color:#e6c89c;background:#fefaf3}     /* 4-6 */
+.kr-ma-card.ma-weak{border-color:#e6b3b3;background:#fef7f7}       /* 1-3 */
+.kr-ma-card.ma-bear{border-color:#a32d2d;background:#fef0f0}       /* 0   */
+.kr-ma-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.kr-ma-score-row{display:flex;align-items:baseline;gap:6px}
+.kr-ma-score{font-size:30px;font-weight:800;line-height:1}
+.kr-ma-score.ma-strong{color:#1a8a4a}
+.kr-ma-score.ma-medium{color:#B5500A}
+.kr-ma-score.ma-weak{color:#A32D2D}
+.kr-ma-score.ma-bear{color:#A32D2D}
+.kr-ma-of{font-size:13px;color:#888;font-weight:600}
+.kr-ma-label{font-size:12px;font-weight:700;color:#1a1a1a}
+/* 매트릭스 그리드: 좌측 헤더 + 3개 컬럼 = 4컬럼 */
+.kr-ma-matrix{
+  display:grid;
+  grid-template-columns:90px repeat(3,1fr);
+  gap:5px;
+  align-items:center;
+  margin:4px 0 2px
+}
+.kr-ma-col-head{
+  text-align:center;font-size:10.5px;color:#666;font-weight:700;
+  padding:4px 0;letter-spacing:.3px
+}
+.kr-ma-row-head{
+  font-size:11px;color:#444;font-weight:700;padding-right:8px;text-align:right
+}
+.kr-ma-cell{
+  display:flex;align-items:center;justify-content:center;
+  height:32px;border-radius:7px;font-size:13px;font-weight:800;
+  border:1.5px solid transparent
+}
+.kr-ma-cell.on{background:#1a8a4a;color:#fff;border-color:#0F6E2E}
+.kr-ma-cell.off{background:#fef0f0;color:#A32D2D;border-color:#e6b3b3}
+.kr-ma-meta{font-size:10.5px;color:#888;line-height:1.45}
+
+@media(max-width:640px){
+  .kr-ma-matrix{grid-template-columns:72px repeat(3,1fr);gap:4px}
+  .kr-ma-row-head{font-size:10.5px}
+  .kr-ma-cell{height:28px;font-size:12px}
+}
+
 @media(max-width:640px){
   .kr-index-grid{grid-template-columns:1fr}
   .kr-pulse-wrap{padding:0 12px}
@@ -1831,6 +1879,7 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
   <!-- Step 2: ② FTD 카운터 (Follow-Through Day) -->
   <!-- Step 3: ③ Distribution Day 게이지 (분배일 카운트) -->
   <!-- Step 4: ④ ADR 게이지 (Advance/Decline Ratio — 시장 폭) -->
+  <!-- Step 5: ⑤ MA 매트릭스 (3 지수 × 3 이평선 = 9 조건) -->
   <div id="mp-kr-pulse" class="kr-pulse-wrap" style="display:none">
     <div class="kr-pulse-section-title"><span>📊</span> 지수 Stage — KOSPI · KOSPI 200 · KOSDAQ</div>
     <div class="kr-index-grid" id="kr-index-grid">
@@ -1856,6 +1905,13 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     </div>
     <div id="kr-adr-wrap">
       <!-- JS renderKrAdr()에서 렌더 -->
+    </div>
+
+    <div class="kr-pulse-section-title">
+      <span>🎯</span> MA 매트릭스 — 지수 × 이평선 (9 조건)
+    </div>
+    <div id="kr-ma-wrap">
+      <!-- JS renderKrMaMatrix()에서 렌더 -->
     </div>
   </div>
 
@@ -11653,7 +11709,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-29a-step4] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-29a-step5] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
@@ -11895,8 +11951,7 @@ function adrSeverityClass(value, signal) {
   if (value >= 120) return 'adr-bullish';
   if (value >= 80)  return 'adr-neutral';
   return 'adr-bearish';
-}
-function renderKrAdr(pulse) {
+}function renderKrAdr(pulse) {
   const wrap = document.getElementById('kr-adr-wrap');
   if (!wrap) return;
   const adr = pulse && pulse.adr;
@@ -11964,6 +12019,74 @@ function renderKrAdr(pulse) {
   `;
 }
 
+// Step 5: ⑤ MA 매트릭스 — kr_pulse.ma_matrix 사용
+// 3 지수 (KOSPI/KOSPI200/KOSDAQ) × 3 이평선 (21/50/200) = 9 조건
+// score: 7+ strong / 4-6 medium / 1-3 weak / 0 bear
+function maSeverityClass(score, max) {
+  const m = max || 9;
+  if (score === 0) return 'ma-bear';
+  if (score >= 7)  return 'ma-strong';
+  if (score >= 4)  return 'ma-medium';
+  return 'ma-weak';
+}
+function renderKrMaMatrix(pulse) {
+  const wrap = document.getElementById('kr-ma-wrap');
+  if (!wrap) return;
+  const ma = pulse && pulse.ma_matrix;
+  if (!ma || !ma.matrix) {
+    wrap.innerHTML = '<div class="kr-ma-card"><div style="color:#bbb;font-size:11px">MA 매트릭스 데이터 없음 (kr_pulse.ma_matrix 미수집)</div></div>';
+    return;
+  }
+  const score = (typeof ma.score === 'number') ? ma.score : 0;
+  const max = ma.max || 9;
+  const label = ma.label || '';
+  const matrix = ma.matrix;
+  const sev = maSeverityClass(score, max);
+
+  const indices = [
+    { key: 'kospi',    name: 'KOSPI' },
+    { key: 'kospi200', name: 'KOSPI 200' },
+    { key: 'kosdaq',   name: 'KOSDAQ' },
+  ];
+  const cols = ['21MA', '50MA', '200MA'];
+
+  // 매트릭스 셀 생성 (CSS Grid, 4칸씩 4행)
+  let cells = '';
+  // Row 1: 헤더 (좌상단 빈칸 + 21MA + 50MA + 200MA)
+  cells += '<div></div>';
+  cols.forEach(c => { cells += `<div class="kr-ma-col-head">${c}</div>`; });
+  // Row 2~4: 각 지수 × 각 MA
+  indices.forEach(idx => {
+    cells += `<div class="kr-ma-row-head">${idx.name}</div>`;
+    const row = matrix[idx.key] || [false, false, false];
+    row.forEach((on, i) => {
+      const cls = on ? 'on' : 'off';
+      const sym = on ? '✓' : '✗';
+      const tip = `${idx.name} > ${cols[i]}: ${on ? '위' : '아래'}`;
+      cells += `<div class="kr-ma-cell ${cls}" title="${tip}">${sym}</div>`;
+    });
+  });
+
+  wrap.innerHTML = `
+    <div class="kr-ma-card ${sev}">
+      <div class="kr-ma-header">
+        <div class="kr-ma-score-row">
+          <span class="kr-ma-score ${sev}">${score}</span>
+          <span class="kr-ma-of">/ ${max}</span>
+        </div>
+        <span class="kr-ma-label">${label}</span>
+      </div>
+      <div class="kr-ma-matrix">
+        ${cells}
+      </div>
+      <div class="kr-ma-meta">
+        3개 지수(KOSPI · KOSPI 200 · KOSDAQ) × 3개 이평선(21·50·200) = 9개 조건<br>
+        · 7~9 강세 / 4~6 혼조 / 1~3 약세 / 0 베어
+      </div>
+    </div>
+  `;
+}
+
 // mpMarket 에 따라 적절한 raw 데이터로 Market Pulse 업데이트
 function refreshMarketPulse() {
   const krPulseWrap = document.getElementById('mp-kr-pulse');
@@ -11986,6 +12109,7 @@ function refreshMarketPulse() {
     renderKrFtd(pulse);
     renderKrDistribution(pulse);
     renderKrAdr(pulse);
+    renderKrMaMatrix(pulse);
   } else {
     // US 데이터로 복원
     if (krPulseWrap) krPulseWrap.style.display = 'none';
