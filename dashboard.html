@@ -1003,10 +1003,38 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .kr-ma-cell.off{background:#fef0f0;color:#A32D2D;border-color:#e6b3b3}
 .kr-ma-meta{font-size:10.5px;color:#888;line-height:1.45}
 
+/* Step 6: ⑥ 수급 펄스 (Supply Flow — 신용잔고 / 외국인 / 기관) */
+.kr-supply-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kr-supply-card{
+  border:1.5px solid #e0e0d8;border-radius:12px;padding:12px 14px;background:#fff;
+  display:flex;flex-direction:column;gap:5px
+}
+.kr-supply-card.unavailable{border-color:#d8d8d2;background:#fafaf6}
+.kr-supply-card.positive{border-color:#a8d4b3;background:#f7fcf8}
+.kr-supply-card.negative{border-color:#e6b3b3;background:#fef7f7}
+.kr-supply-icon-name{display:flex;align-items:center;gap:5px}
+.kr-supply-icon{font-size:14px;line-height:1}
+.kr-supply-name{font-size:11px;color:#666;font-weight:700}
+.kr-supply-value{font-size:18px;font-weight:800;line-height:1.15;margin-top:2px}
+.kr-supply-value.unavailable{color:#aaa}
+.kr-supply-value.positive{color:#1a8a4a}
+.kr-supply-value.negative{color:#A32D2D}
+.kr-supply-value.neutral{color:#1a1a1a}
+.kr-supply-unit{font-size:10px;color:#888;font-weight:600}
+.kr-supply-fallback{
+  border:1px dashed #d8d8d2;border-radius:8px;padding:9px 11px;background:#fff;
+  font-size:10.5px;color:#666;line-height:1.55;margin-top:8px
+}
+.kr-supply-fallback strong{color:#854F0B}
+
 @media(max-width:640px){
   .kr-ma-matrix{grid-template-columns:72px repeat(3,1fr);gap:4px}
   .kr-ma-row-head{font-size:10.5px}
   .kr-ma-cell{height:28px;font-size:12px}
+}
+
+@media(max-width:640px){
+  .kr-supply-grid{grid-template-columns:1fr}
 }
 
 @media(max-width:640px){
@@ -1874,12 +1902,13 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     </div>
   </div>
 
-  <!-- ═══ KR Market Pulse 5지표 (Phase C) — KR 모드에서만 표시 ═══ -->
+  <!-- ═══ KR Market Pulse 5지표 (Phase C 완성) — KR 모드에서만 표시 ═══ -->
   <!-- Step 1: ① 지수 Stage 카드 3개 (KOSPI / KOSPI200 / KOSDAQ) -->
   <!-- Step 2: ② FTD 카운터 (Follow-Through Day) -->
   <!-- Step 3: ③ Distribution Day 게이지 (분배일 카운트) -->
   <!-- Step 4: ④ ADR 게이지 (Advance/Decline Ratio — 시장 폭) -->
   <!-- Step 5: ⑤ MA 매트릭스 (3 지수 × 3 이평선 = 9 조건) -->
+  <!-- Step 6: ⑥ 수급 펄스 (신용잔고 / 외국인 / 기관) -->
   <div id="mp-kr-pulse" class="kr-pulse-wrap" style="display:none">
     <div class="kr-pulse-section-title"><span>📊</span> 지수 Stage — KOSPI · KOSPI 200 · KOSDAQ</div>
     <div class="kr-index-grid" id="kr-index-grid">
@@ -1912,6 +1941,13 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     </div>
     <div id="kr-ma-wrap">
       <!-- JS renderKrMaMatrix()에서 렌더 -->
+    </div>
+
+    <div class="kr-pulse-section-title">
+      <span>💰</span> 수급 펄스 — 신용잔고 · 외국인 · 기관
+    </div>
+    <div id="kr-supply-wrap">
+      <!-- JS renderKrSupply()에서 렌더 -->
     </div>
   </div>
 
@@ -11709,7 +11745,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-29a-step5] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-29a-step6-phaseC완성] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
@@ -12087,6 +12123,77 @@ function renderKrMaMatrix(pulse) {
   `;
 }
 
+// Step 6: ⑥ 수급 펄스 — kr_pulse.supply 사용
+// available=true: 각 값 표시 (양수 녹색, 음수 빨강)
+// available=false: 모두 "—" + Phase D 안내
+function renderKrSupply(pulse) {
+  const wrap = document.getElementById('kr-supply-wrap');
+  if (!wrap) return;
+  const supply = pulse && pulse.supply;
+  if (!supply) {
+    wrap.innerHTML = '<div class="kr-supply-card unavailable"><div style="color:#bbb;font-size:11px">수급 데이터 없음 (kr_pulse.supply 미수집)</div></div>';
+    return;
+  }
+  const available = (supply.available === true);
+
+  const items = [
+    { key: 'credit_balance', icon: '💳', name: '신용잔고',          unit: '조원', isFlow: false },
+    { key: 'foreigner_5d',   icon: '🌐', name: '외국인 5일 순매수', unit: '억원', isFlow: true  },
+    { key: 'institution_5d', icon: '🏛️', name: '기관 5일 순매수',   unit: '억원', isFlow: true  },
+  ];
+
+  const fmtFlow = v => {
+    if (typeof v !== 'number') return '—';
+    const sign = v > 0 ? '+' : v < 0 ? '−' : '';
+    const abs = Math.abs(v).toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+    return `${sign}${abs}`;
+  };
+  const fmtPlain = v => {
+    if (typeof v !== 'number') return '—';
+    return v.toLocaleString('ko-KR', { maximumFractionDigits: 1 });
+  };
+
+  const cards = items.map(it => {
+    const v = supply[it.key];
+    const hasValue = (typeof v === 'number');
+    let cardCls = 'unavailable';
+    let valCls  = 'unavailable';
+    let display = '—';
+    if (hasValue) {
+      if (it.isFlow) {
+        if (v > 0)      { cardCls = 'positive'; valCls = 'positive'; }
+        else if (v < 0) { cardCls = 'negative'; valCls = 'negative'; }
+        else            { cardCls = '';         valCls = 'neutral';  }
+        display = fmtFlow(v);
+      } else {
+        cardCls = ''; valCls = 'neutral';
+        display = fmtPlain(v);
+      }
+    }
+    return `
+      <div class="kr-supply-card ${cardCls}">
+        <div class="kr-supply-icon-name">
+          <span class="kr-supply-icon">${it.icon}</span>
+          <span class="kr-supply-name">${it.name}</span>
+        </div>
+        <div class="kr-supply-value ${valCls}">${display}</div>
+        <div class="kr-supply-unit">${hasValue ? it.unit : '데이터 없음'}</div>
+      </div>
+    `;
+  }).join('');
+
+  const fallbackMsg = !available
+    ? `<div class="kr-supply-fallback">
+        <strong>⚠ Phase D 보강 예정.</strong> 수급 데이터(신용잔고 · 외국인 · 기관 5일 순매수)는 KRX 회원 인증이 필요합니다. 현재 KRX_ID/KRX_PW 환경변수가 GitHub Secrets에 미등록 상태로 fallback. Phase D에서 GitHub Secrets 설정 또는 yfinance 기반 외국인·기관 추정 로직으로 대안 구현 예정.
+      </div>`
+    : '';
+
+  wrap.innerHTML = `
+    <div class="kr-supply-grid">${cards}</div>
+    ${fallbackMsg}
+  `;
+}
+
 // mpMarket 에 따라 적절한 raw 데이터로 Market Pulse 업데이트
 function refreshMarketPulse() {
   const krPulseWrap = document.getElementById('mp-kr-pulse');
@@ -12110,6 +12217,7 @@ function refreshMarketPulse() {
     renderKrDistribution(pulse);
     renderKrAdr(pulse);
     renderKrMaMatrix(pulse);
+    renderKrSupply(pulse);
   } else {
     // US 데이터로 복원
     if (krPulseWrap) krPulseWrap.style.display = 'none';
