@@ -912,6 +912,55 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .kr-dd-thresh-item{display:inline-flex;align-items:center;gap:3px}
 .kr-dd-thresh-dot{width:8px;height:8px;border-radius:2px;display:inline-block}
 
+/* Step 4: ④ ADR 게이지 (Advance/Decline Ratio — 시장 폭) */
+.kr-adr-card{
+  border:1.5px solid #e0e0d8;border-radius:12px;padding:14px 16px;background:#fff;
+  display:flex;flex-direction:column;gap:10px
+}
+.kr-adr-card.adr-bullish{border-color:#a8d4b3;background:#f7fcf8}
+.kr-adr-card.adr-neutral{border-color:#e6c89c;background:#fefaf3}
+.kr-adr-card.adr-bearish{border-color:#e6b3b3;background:#fef7f7}
+.kr-adr-card.adr-unknown{border-color:#d8d8d2;background:#fafaf6}
+.kr-adr-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.kr-adr-value-row{display:flex;align-items:baseline;gap:6px}
+.kr-adr-value{font-size:30px;font-weight:800;line-height:1}
+.kr-adr-value.adr-bullish{color:#1a8a4a}
+.kr-adr-value.adr-neutral{color:#B5500A}
+.kr-adr-value.adr-bearish{color:#A32D2D}
+.kr-adr-value.adr-unknown{color:#888}
+.kr-adr-unit{font-size:12px;color:#888;font-weight:600}
+.kr-adr-status{font-size:12px;font-weight:700;color:#1a1a1a}
+.kr-adr-status.adr-unknown{color:#888;font-weight:600}
+/* 게이지 (0~150% 범위) */
+.kr-adr-gauge-wrap{position:relative;padding:12px 0 4px}
+.kr-adr-gauge{
+  position:relative;height:18px;background:#f0f0ea;border-radius:6px;overflow:visible
+}
+.kr-adr-gauge-fill{
+  position:absolute;left:0;top:0;height:100%;border-radius:6px;
+  transition:width .3s
+}
+.kr-adr-gauge-fill.adr-bullish{background:#1a8a4a}
+.kr-adr-gauge-fill.adr-neutral{background:#B5500A}
+.kr-adr-gauge-fill.adr-bearish{background:#A32D2D}
+.kr-adr-mark{
+  position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px dashed #999
+}
+.kr-adr-mark-label{
+  position:absolute;top:-12px;left:-8px;font-size:9px;color:#888;white-space:nowrap
+}
+.kr-adr-mark.m80{left:53.33%}
+.kr-adr-mark.m120{left:80%}
+.kr-adr-scale{
+  display:flex;justify-content:space-between;font-size:9px;color:#aaa;margin-top:3px;padding:0 2px
+}
+.kr-adr-meta{font-size:10.5px;color:#888;line-height:1.45}
+.kr-adr-fallback{
+  border:1px dashed #d8d8d2;border-radius:8px;padding:9px 11px;background:#fff;
+  font-size:10.5px;color:#666;line-height:1.55
+}
+.kr-adr-fallback strong{color:#854F0B}
+
 @media(max-width:640px){
   .kr-index-grid{grid-template-columns:1fr}
   .kr-pulse-wrap{padding:0 12px}
@@ -1781,6 +1830,7 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
   <!-- Step 1: ① 지수 Stage 카드 3개 (KOSPI / KOSPI200 / KOSDAQ) -->
   <!-- Step 2: ② FTD 카운터 (Follow-Through Day) -->
   <!-- Step 3: ③ Distribution Day 게이지 (분배일 카운트) -->
+  <!-- Step 4: ④ ADR 게이지 (Advance/Decline Ratio — 시장 폭) -->
   <div id="mp-kr-pulse" class="kr-pulse-wrap" style="display:none">
     <div class="kr-pulse-section-title"><span>📊</span> 지수 Stage — KOSPI · KOSPI 200 · KOSDAQ</div>
     <div class="kr-index-grid" id="kr-index-grid">
@@ -1799,6 +1849,13 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     </div>
     <div id="kr-dd-wrap">
       <!-- JS renderKrDistribution()에서 렌더 -->
+    </div>
+
+    <div class="kr-pulse-section-title">
+      <span>📈</span> ADR — Advance/Decline Ratio (시장 폭)
+    </div>
+    <div id="kr-adr-wrap">
+      <!-- JS renderKrAdr()에서 렌더 -->
     </div>
   </div>
 
@@ -11596,7 +11653,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-29a-step3] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-29a-step4] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
@@ -11827,6 +11884,86 @@ function renderKrDistribution(pulse) {
   `;
 }
 
+// Step 4: ④ ADR 게이지 — kr_pulse.adr 사용
+// signal: bullish (>120%) / neutral (80~120%) / bearish (<80%) / unknown (null)
+// 게이지 범위: 0~150% (markers at 80, 120)
+function adrSeverityClass(value, signal) {
+  if (signal === 'bullish' || signal === 'neutral' || signal === 'bearish') {
+    return `adr-${signal}`;
+  }
+  if (typeof value !== 'number') return 'adr-unknown';
+  if (value >= 120) return 'adr-bullish';
+  if (value >= 80)  return 'adr-neutral';
+  return 'adr-bearish';
+}
+function renderKrAdr(pulse) {
+  const wrap = document.getElementById('kr-adr-wrap');
+  if (!wrap) return;
+  const adr = pulse && pulse.adr;
+  if (!adr) {
+    wrap.innerHTML = '<div class="kr-adr-card adr-unknown"><div style="color:#bbb;font-size:11px">ADR 데이터 없음 (kr_pulse.adr 미수집)</div></div>';
+    return;
+  }
+  const value = adr.value;
+  const days = adr.days || 20;
+  const sev = adrSeverityClass(value, adr.signal);
+  const hasValue = (typeof value === 'number');
+
+  if (!hasValue) {
+    // Phase D fallback 케이스 (현재 상태)
+    wrap.innerHTML = `
+      <div class="kr-adr-card adr-unknown">
+        <div class="kr-adr-header">
+          <div class="kr-adr-value-row">
+            <span class="kr-adr-value adr-unknown">—</span>
+            <span class="kr-adr-unit">% (ADR · ${days}일)</span>
+          </div>
+          <span class="kr-adr-status adr-unknown">${adr.label || '데이터 없음'}</span>
+        </div>
+        <div class="kr-adr-fallback">
+          <strong>⚠ Phase D 보강 예정.</strong> ADR(Advance/Decline Ratio)은 KOSPI 200 · KOSDAQ 150 구성종목의 일별 등락 데이터가 필요합니다. 현재 pykrx 일괄 수집 실패로 fallback 상태이며, Phase D에서 yfinance 직접 조회 방식으로 대안 구현 예정.
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // 정상 케이스 — 게이지 시각화
+  const cappedPct = Math.max(0, Math.min(value, 150));
+  const fillPct = (cappedPct / 150) * 100;  // 0~150% 범위를 게이지 너비 0~100%로 매핑
+  const sigLabel = (adr.signal === 'bullish') ? '강세'
+                  : (adr.signal === 'neutral') ? '중립'
+                  : (adr.signal === 'bearish') ? '약세'
+                  : (adr.label || '');
+
+  wrap.innerHTML = `
+    <div class="kr-adr-card ${sev}">
+      <div class="kr-adr-header">
+        <div class="kr-adr-value-row">
+          <span class="kr-adr-value ${sev}">${value.toFixed(0)}%</span>
+          <span class="kr-adr-unit">ADR · ${days}일</span>
+        </div>
+        <span class="kr-adr-status">${sigLabel}</span>
+      </div>
+      <div class="kr-adr-gauge-wrap">
+        <div class="kr-adr-gauge">
+          <div class="kr-adr-gauge-fill ${sev}" style="width:${fillPct.toFixed(2)}%"></div>
+          <div class="kr-adr-mark m80"><span class="kr-adr-mark-label">80</span></div>
+          <div class="kr-adr-mark m120"><span class="kr-adr-mark-label">120</span></div>
+        </div>
+        <div class="kr-adr-scale">
+          <span>0</span>
+          <span>150%</span>
+        </div>
+      </div>
+      <div class="kr-adr-meta">
+        ADR = (${days}일 누적 상승 종목수) / (하락 종목수) × 100<br>
+        · &lt;80% 약세 / 80~120% 중립 / &gt;120% 강세 — 시장의 폭(breadth) 지표
+      </div>
+    </div>
+  `;
+}
+
 // mpMarket 에 따라 적절한 raw 데이터로 Market Pulse 업데이트
 function refreshMarketPulse() {
   const krPulseWrap = document.getElementById('mp-kr-pulse');
@@ -11848,6 +11985,7 @@ function refreshMarketPulse() {
     renderKrIndexStages(pulse);
     renderKrFtd(pulse);
     renderKrDistribution(pulse);
+    renderKrAdr(pulse);
   } else {
     // US 데이터로 복원
     if (krPulseWrap) krPulseWrap.style.display = 'none';
