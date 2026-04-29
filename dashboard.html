@@ -862,6 +862,27 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .kr-index-ma{display:inline-flex;align-items:center;gap:2px;font-weight:600}
 .kr-index-ma.ok{color:#1a8a4a}
 .kr-index-ma.bad{color:#A32D2D}
+
+/* Step 2: ② FTD 카운터 (Follow-Through Day) */
+.kr-ftd-card{
+  border:1.5px solid #e0e0d8;border-radius:12px;padding:14px 16px;background:#fff;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap
+}
+.kr-ftd-card.valid{border-color:#a8d4b3;background:#f7fcf8}
+.kr-ftd-card.invalid{border-color:#d8d8d2;background:#fafaf6}
+.kr-ftd-icon{font-size:32px;line-height:1;flex-shrink:0}
+.kr-ftd-icon.dim{opacity:.45;filter:grayscale(.5)}
+.kr-ftd-main{flex:1;min-width:140px}
+.kr-ftd-headline{font-size:17px;font-weight:800;line-height:1.2}
+.kr-ftd-headline.valid{color:#1a8a4a}
+.kr-ftd-headline.invalid{color:#666}
+.kr-ftd-sub{font-size:11px;color:#666;margin-top:4px;line-height:1.4}
+.kr-ftd-meta{font-size:10.5px;color:#888;margin-top:6px}
+.kr-ftd-days-badge{
+  display:inline-block;background:#1a8a4a;color:#fff;font-size:11px;font-weight:700;
+  padding:2px 8px;border-radius:99px;margin-left:6px
+}
+
 @media(max-width:640px){
   .kr-index-grid{grid-template-columns:1fr}
   .kr-pulse-wrap{padding:0 12px}
@@ -1729,10 +1750,18 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 
   <!-- ═══ KR Market Pulse 5지표 (Phase C) — KR 모드에서만 표시 ═══ -->
   <!-- Step 1: ① 지수 Stage 카드 3개 (KOSPI / KOSPI200 / KOSDAQ) -->
+  <!-- Step 2: ② FTD 카운터 (Follow-Through Day) -->
   <div id="mp-kr-pulse" class="kr-pulse-wrap" style="display:none">
     <div class="kr-pulse-section-title"><span>📊</span> 지수 Stage — KOSPI · KOSPI 200 · KOSDAQ</div>
     <div class="kr-index-grid" id="kr-index-grid">
       <!-- JS renderKrIndexStages()에서 렌더 -->
+    </div>
+
+    <div class="kr-pulse-section-title">
+      <span>🚀</span> FTD — Follow-Through Day (추세 전환 신호)
+    </div>
+    <div id="kr-ftd-wrap">
+      <!-- JS renderKrFtd()에서 렌더 -->
     </div>
   </div>
 
@@ -11530,7 +11559,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-29a-step1] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-29a-step2] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
@@ -11665,6 +11694,45 @@ function renderKrIndexStages(pulse) {
   }).join('');
 }
 
+// Step 2: ② FTD 카운터 — kr_pulse.ftd 사용
+function renderKrFtd(pulse) {
+  const wrap = document.getElementById('kr-ftd-wrap');
+  if (!wrap) return;
+  const ftd = pulse && pulse.ftd;
+  if (!ftd) {
+    wrap.innerHTML = '<div class="kr-ftd-card invalid"><div class="kr-ftd-icon dim">⏳</div><div class="kr-ftd-main"><div class="kr-ftd-headline invalid">FTD 데이터 없음</div><div class="kr-ftd-sub">kr_pulse.ftd 미수집</div></div></div>';
+    return;
+  }
+  if (ftd.valid) {
+    const days = (ftd.days_since != null) ? ftd.days_since : '?';
+    const date = ftd.last_ftd_date || '—';
+    const freshness = (typeof ftd.days_since === 'number')
+      ? (ftd.days_since <= 5 ? '신선 (5일 이내)' : ftd.days_since <= 10 ? '유효 (10일 이내)' : '오래됨')
+      : '';
+    wrap.innerHTML = `
+      <div class="kr-ftd-card valid">
+        <div class="kr-ftd-icon">🚀</div>
+        <div class="kr-ftd-main">
+          <div class="kr-ftd-headline valid">
+            FTD 발생
+            <span class="kr-ftd-days-badge">${days}일 전</span>
+          </div>
+          <div class="kr-ftd-sub">${ftd.label || '추세 전환 확인일 — 강세장 진입 신호'}</div>
+          <div class="kr-ftd-meta">발생일: ${date}${freshness ? ' · ' + freshness : ''}</div>
+        </div>
+      </div>`;
+  } else {
+    wrap.innerHTML = `
+      <div class="kr-ftd-card invalid">
+        <div class="kr-ftd-icon dim">⏳</div>
+        <div class="kr-ftd-main">
+          <div class="kr-ftd-headline invalid">${ftd.label || '반등 시도 대기'}</div>
+          <div class="kr-ftd-sub">추세 전환 신호 모니터링 중 — 반등 시도 4~7일째 +1.7%↑ 상승 + 거래량 증가 발생 시 FTD 확정</div>
+        </div>
+      </div>`;
+  }
+}
+
 // mpMarket 에 따라 적절한 raw 데이터로 Market Pulse 업데이트
 function refreshMarketPulse() {
   const krPulseWrap = document.getElementById('mp-kr-pulse');
@@ -11682,7 +11750,9 @@ function refreshMarketPulse() {
     updateMarketPulse(krFormatted, null);
     // Phase C: KR 5지표 컴포넌트 표시 + 렌더
     if (krPulseWrap) krPulseWrap.style.display = '';
-    renderKrIndexStages((krRaw.market || {}).kr_pulse);
+    const pulse = (krRaw.market || {}).kr_pulse;
+    renderKrIndexStages(pulse);
+    renderKrFtd(pulse);
   } else {
     // US 데이터로 복원
     if (krPulseWrap) krPulseWrap.style.display = 'none';
