@@ -831,6 +831,42 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .qv-ticker{font-size:10px;color:#aaa;margin-bottom:2px}
 .qv-stage{font-size:12px;font-weight:700;color:#1a56db}
 
+/* ══ KR Market Pulse 5지표 (Phase C, v2026-04-29a) ══════
+   Step 1: ① 지수 Stage 카드 3개 (KOSPI/KOSPI200/KOSDAQ)
+   - 데이터: market.kr_pulse.index_stage.{kospi|kospi200|kosdaq}
+   - 색상: stage2 녹색 / stage3 주황 / stage4 빨강 / stage1 회색
+*/
+.kr-pulse-wrap{padding:0 20px}
+.kr-pulse-section-title{
+  font-size:13px;font-weight:700;color:#1a1a1a;
+  margin:18px 0 10px;display:flex;align-items:center;gap:6px
+}
+.kr-index-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kr-index-card{
+  border:1.5px solid #e0e0d8;border-radius:12px;padding:12px 14px;background:#fff;
+  display:flex;flex-direction:column;gap:5px
+}
+.kr-index-card.stage1{border-color:#d8d8d2;background:#fafaf6}
+.kr-index-card.stage2{border-color:#a8d4b3;background:#f7fcf8}
+.kr-index-card.stage3{border-color:#e6c89c;background:#fefaf3}
+.kr-index-card.stage4{border-color:#e6b3b3;background:#fef7f7}
+.kr-index-name{font-size:11px;color:#888;font-weight:700;letter-spacing:.3px}
+.kr-index-stage-num{font-size:26px;font-weight:800;line-height:1.05}
+.kr-index-stage-num.stage1{color:#888}
+.kr-index-stage-num.stage2{color:#1a8a4a}
+.kr-index-stage-num.stage3{color:#B5500A}
+.kr-index-stage-num.stage4{color:#A32D2D}
+.kr-index-stage-label{font-size:10.5px;color:#666;line-height:1.35;min-height:14px}
+.kr-index-close{font-size:13px;color:#1a1a1a;font-weight:700;margin-top:2px}
+.kr-index-mas{display:flex;gap:8px;margin-top:2px;font-size:10px;flex-wrap:wrap}
+.kr-index-ma{display:inline-flex;align-items:center;gap:2px;font-weight:600}
+.kr-index-ma.ok{color:#1a8a4a}
+.kr-index-ma.bad{color:#A32D2D}
+@media(max-width:640px){
+  .kr-index-grid{grid-template-columns:1fr}
+  .kr-pulse-wrap{padding:0 12px}
+}
+
 /* ── 모바일 완전 수정 ── */
 @media(max-width:768px){
   /* 모바일: grid 1열로 변경, 사이드바는 fixed overlay */
@@ -1688,6 +1724,15 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
         </div>
       </div>
       <div id="mp-big-meta" style="margin-top:12px;padding-top:10px;border-top:1px solid #f0f0ea;font-size:11px;color:#bbb">—</div>
+    </div>
+  </div>
+
+  <!-- ═══ KR Market Pulse 5지표 (Phase C) — KR 모드에서만 표시 ═══ -->
+  <!-- Step 1: ① 지수 Stage 카드 3개 (KOSPI / KOSPI200 / KOSDAQ) -->
+  <div id="mp-kr-pulse" class="kr-pulse-wrap" style="display:none">
+    <div class="kr-pulse-section-title"><span>📊</span> 지수 Stage — KOSPI · KOSPI 200 · KOSDAQ</div>
+    <div class="kr-index-grid" id="kr-index-grid">
+      <!-- JS renderKrIndexStages()에서 렌더 -->
     </div>
   </div>
 
@@ -11485,7 +11530,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-04-28f] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-04-29a-step1] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
@@ -11573,8 +11618,56 @@ function setMpMarket(mkt, el) {
   refreshMarketPulse();
 }
 
+// ═══ KR Market Pulse 5지표 (Phase C) ═══
+// Step 1: ① 지수 Stage 카드 3개 — kr_pulse.index_stage 사용
+function renderKrIndexStages(pulse) {
+  const grid = document.getElementById('kr-index-grid');
+  if (!grid) return;
+  const idxData = pulse && pulse.index_stage;
+  if (!idxData) {
+    grid.innerHTML = '<div style="grid-column:1/-1;font-size:11px;color:#aaa;text-align:center;padding:14px">지수 데이터 없음 (kr_pulse 미수집)</div>';
+    return;
+  }
+  const indices = [
+    { key: 'kospi',    name: 'KOSPI' },
+    { key: 'kospi200', name: 'KOSPI 200' },
+    { key: 'kosdaq',   name: 'KOSDAQ' },
+  ];
+  const fmt = v => (v ?? 0).toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+  grid.innerHTML = indices.map(idx => {
+    const d = idxData[idx.key];
+    if (!d) {
+      return `<div class="kr-index-card stage1">
+        <div class="kr-index-name">${idx.name}</div>
+        <div style="color:#bbb;font-size:11px">데이터 없음</div>
+      </div>`;
+    }
+    const stage = d.stage || 1;
+    const sc = `stage${stage}`;
+    const mkMa = (label, isAbove) => {
+      const cls = isAbove ? 'ok' : 'bad';
+      const sign = isAbove ? '✓' : '✗';
+      return `<span class="kr-index-ma ${cls}">${sign} ${label}</span>`;
+    };
+    return `
+      <div class="kr-index-card ${sc}" title="종가 ${fmt(d.close)} / 21MA ${fmt(d.ma21)} / 50MA ${fmt(d.ma50)} / 200MA ${fmt(d.ma200)}">
+        <div class="kr-index-name">${idx.name}</div>
+        <div class="kr-index-stage-num ${sc}">Stage ${stage}</div>
+        <div class="kr-index-stage-label">${d.label || ''}</div>
+        <div class="kr-index-close">${fmt(d.close)}</div>
+        <div class="kr-index-mas">
+          ${mkMa('21MA', d.above_ma21)}
+          ${mkMa('50MA', d.above_ma50)}
+          ${mkMa('200MA', d.above_ma200)}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 // mpMarket 에 따라 적절한 raw 데이터로 Market Pulse 업데이트
 function refreshMarketPulse() {
+  const krPulseWrap = document.getElementById('mp-kr-pulse');
   if (mpMarket === 'kr') {
     // KR raw 가공: ingestKR이 저장한 KR.raw 사용
     const krRaw = KR.raw || {};
@@ -11587,8 +11680,12 @@ function refreshMarketPulse() {
       _isKR: true,
     };
     updateMarketPulse(krFormatted, null);
+    // Phase C: KR 5지표 컴포넌트 표시 + 렌더
+    if (krPulseWrap) krPulseWrap.style.display = '';
+    renderKrIndexStages((krRaw.market || {}).kr_pulse);
   } else {
     // US 데이터로 복원
+    if (krPulseWrap) krPulseWrap.style.display = 'none';
     const usRaw = window._lastUSRaw || null;
     if (usRaw) updateMarketPulse(usRaw, null);
   }
