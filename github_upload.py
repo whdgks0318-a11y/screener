@@ -1,6 +1,14 @@
 """
-github_upload.py v3 — US + KR + Dashboard 동시 업로드
+github_upload.py v4 — US + KR + Dashboard + Phase History 동시 업로드
 screener_data.json + kr_screener_output.json + dashboard.html
+                  + phase_history.json + kr_phase_history.json (NEW↑ 버그 fix)
+
+[v4 변경사항 — 2026-05-06]
+  UPLOAD_FILES에 phase_history.json / kr_phase_history.json 추가.
+  → 이전: 매일 컨테이너가 깨끗해서 phase_history가 보존 안 됨
+        → 항상 phase_first_day=True → 모든 종목 phase_changed_up=None
+        → NEW↑ 필터 영구 0개
+  → 수정: 매일 phase_history를 GitHub에 업로드 → 다음 실행에서 어제 데이터 로드 가능
 """
 
 import json, base64, os, sys
@@ -19,10 +27,15 @@ REPO_NAME    = os.environ.get("GITHUB_REPO",  "screener")
 BRANCH       = "main"
 
 # 업로드할 파일 (로컬 경로 후보들, GitHub 경로)
+# 로컬에 파일이 없으면 자동 [스킵]되므로,
+# KR 워크플로는 phase_history.json을 [스킵], US 워크플로는 kr_phase_history.json을 [스킵] 함
 UPLOAD_FILES = [
     (["output/screener_data.json", "screener_data.json"],  "screener_data.json"),
     (["kr_screener_output.json"],                           "kr_screener_output.json"),
     (["dashboard.html"],                                    "dashboard.html"),
+    # ─── v4 추가 (NEW↑ 버그 fix) ──────────────────────────────────────
+    (["phase_history.json"],                                "phase_history.json"),
+    (["kr_phase_history.json"],                             "kr_phase_history.json"),
 ]
 
 API_BASE = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents"
@@ -71,7 +84,7 @@ def upload_file(local_candidates, remote):
 
 def main():
     print("=" * 55)
-    print("🚀 TrendPilot GitHub 업로드 v3")
+    print("🚀 TrendPilot GitHub 업로드 v4")
     print(f"   저장소: {REPO_OWNER}/{REPO_NAME} [{BRANCH}]")
     print("=" * 55)
 
