@@ -36,7 +36,7 @@ jobs:
       - name: 🏷️ 섹터 정보 보강 (GICS 매칭)
         run: python enrich_sectors.py
 
-      - name: ☁️ GitHub 업로드 (dashboard.html + screener_data.json)
+      - name: ☁️ GitHub 업로드 (dashboard.html + screener_data.json + phase_history.json)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_OWNER: trend-pilot
@@ -47,6 +47,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # phase_history는 github_upload.py가 이미 GitHub API로 푸시했으므로
+          # 로컬 working tree에서 제거 → git pull --rebase 시 conflict 회피
+          rm -f phase_history.json kr_phase_history.json
           if [ -f sector_cache.json ]; then
             git add sector_cache.json
             if git diff --staged --quiet; then
