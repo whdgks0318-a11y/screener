@@ -109,9 +109,11 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .mkt-tab.kr.on .mkt-badge{background:#fff0f0;color:#e84040}
 .mkt-divider{width:1px;height:24px;background:#e0e0d8;margin:0 4px}
 
-/* v11-fix: 섹터 분석 탭의 시장 토글이 fixed 헤더(top-sticky-wrap, z-index 200)에 가려지는 이슈 수정.
-   z-index 250으로 강제로 위 레이어로. */
-#top-panel-sector .market-tabs{position:relative;z-index:250}
+/* v11-fix v3: 섹터 분석 탭 시장 토글이 fixed 헤더(top-sticky-wrap)와 겹치는 문제 수정.
+   v2의 z-index:250은 메인 탭을 가리는 부작용 → 제거.
+   대신 margin-top: var(--hdr-h)로 시장 토글을 헤더 아래 영역으로 이동.
+   --hdr-h 는 페이지가 측정한 fixed 헤더 실측 높이 (반응형 자동 대응). */
+#top-panel-sector .market-tabs{margin-top:var(--hdr-h,80px)}
 
 /* ── 통계 바 ── */
 .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:10px 20px;background:#fff;border-bottom:1px solid #e0e0d8}
