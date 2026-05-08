@@ -12298,10 +12298,12 @@ function buildSectorsForTab(stocks) {
         else               sec = '❌ RS 35↓ 회피';
       }
     }
-    if (!secMap[sec]) secMap[sec] = { name:sec, count:0, rs:[], rs_now:[], allStocks:[], indMap:{}, mktcap:0, w1:[], w6:[] };
+    if (!secMap[sec]) secMap[sec] = { name:sec, count:0, rs:[], rs_now:[], rs_line_score:[], allStocks:[], indMap:{}, mktcap:0, w1:[], w6:[] };
     secMap[sec].count++;
     secMap[sec].rs.push(s.rs || 0);
     secMap[sec].rs_now.push(s.rs_now || 0);
+    // v11: 진짜 RS Line 점수 (momentum_score_v2) — null/undefined 는 스킵 (KR 호환)
+    if (typeof s.rs_line_score === 'number') secMap[sec].rs_line_score.push(s.rs_line_score);
     secMap[sec].mktcap += (s.mktcap || 0);
     if (typeof s.w1 === 'number') secMap[sec].w1.push(s.w1);
     if (typeof s.w6 === 'number') secMap[sec].w6.push(s.w6);
@@ -12309,10 +12311,12 @@ function buildSectorsForTab(stocks) {
     // 세부 업종(Industry) 집계
     const ind = (s.industry || s.ind_grp || '').trim();
     if (ind && ind !== 'N/A' && ind !== 'None') {
-      if (!secMap[sec].indMap[ind]) secMap[sec].indMap[ind] = { name:ind, stocks:[], rs:[], rs_now:[], mktcap:0 };
+      if (!secMap[sec].indMap[ind]) secMap[sec].indMap[ind] = { name:ind, stocks:[], rs:[], rs_now:[], rs_line_score:[], mktcap:0 };
       secMap[sec].indMap[ind].stocks.push(s);
       secMap[sec].indMap[ind].rs.push(s.rs || 0);
       secMap[sec].indMap[ind].rs_now.push(s.rs_now || 0);
+      // v11: 업종별 RS Line 점수도 누적
+      if (typeof s.rs_line_score === 'number') secMap[sec].indMap[ind].rs_line_score.push(s.rs_line_score);
       secMap[sec].indMap[ind].mktcap += (s.mktcap || 0);
     }
   });
@@ -12322,13 +12326,15 @@ function buildSectorsForTab(stocks) {
   return Object.values(secMap).map(s => {
     const topByRS = [...s.allStocks].sort((a,b)=>(b.rs||0)-(a.rs||0)).slice(0,8);
     const industries = Object.values(s.indMap).map(ind => ({
-      name:       ind.name,
-      count:      ind.stocks.length,
-      avg_rs:     avg(ind.rs),
-      avg_rs_now: avg(ind.rs_now),
-      mktcap:     ind.mktcap,
-      top:        [...ind.stocks].sort((a,b)=>(b.rs||0)-(a.rs||0)).slice(0,5),
-    })).sort((a,b) => b.avg_rs - a.avg_rs);
+      name:               ind.name,
+      count:              ind.stocks.length,
+      avg_rs:             avg(ind.rs),
+      avg_rs_now:         avg(ind.rs_now),
+      // v11: 진짜 RS Line 점수 (momentum_score_v2) 평균. 데이터 없으면 null → 폴백 IBD RS
+      avg_rs_line_score:  ind.rs_line_score.length ? avg(ind.rs_line_score) : null,
+      mktcap:             ind.mktcap,
+      top:                [...ind.stocks].sort((a,b)=>(b.rs||0)-(a.rs||0)).slice(0,5),
+    })).sort((a,b) => ((b.avg_rs_line_score ?? b.avg_rs) - (a.avg_rs_line_score ?? a.avg_rs)));
     const avgRs = avg(s.rs);
     const avgRsNow = avg(s.rs_now);
     // 평균 Comp: RS, RS now, w6 기반 합성 점수 (0-100 정규화)
@@ -12342,7 +12348,8 @@ function buildSectorsForTab(stocks) {
       mktcap:      s.mktcap,
       avg_rs:      avgRs,
       avg_rs_now:  avgRsNow,
-      avg_rs_line: avgRs,
+      // v11: avg_rs_line 진짜 RS Line 점수 평균 (momentum_score_v2). 데이터 없으면 IBD RS로 폴백
+      avg_rs_line: s.rs_line_score.length ? avg(s.rs_line_score) : avgRs,
       avg_comp:    avgComp,
       avg_w1:      avgF(s.w1),
       avg_w6:      avgW6,
@@ -12546,10 +12553,10 @@ function renderSectorTab() {
     if (!industries || !industries.length) return '<div style="padding:10px;color:#aaa;font-size:11px">세부 업종 데이터 없음</div>';
     const items = industries.slice(0, maxItems || industries.length);
     return items.map((ind, idx) => {
-      // 업종의 IBD RS 평균은 이미 avg_rs. RS Line 점수는 top 종목들의 RS 평균 (데이터 구조상 avg_rs 와 동일하지만 샘플 레이아웃 맞추기 위해 별도 표기)
-      // 샘플 이미지 구조: "RS 90 · IBD 93.7 · 3개"
-      const rsLineScore = ind.avg_rs;  // 업종 대표 RS Line
-      const ibdRs = ind.top.length ? +(ind.top.reduce((a,s)=>a+(s.rs||0),0)/ind.top.length).toFixed(1) : ind.avg_rs;
+      // v11: 진짜 RS Line 점수 (momentum_score_v2) 평균. 데이터 없으면 IBD RS 폴백.
+      // IBD RS는 업종 전체 평균 사용 (top 5 평균 대신 — 더 정확).
+      const rsLineScore = ind.avg_rs_line_score ?? ind.avg_rs;
+      const ibdRs = ind.avg_rs;
       return `
       <div class="sec-ind-row">
         <div class="sec-ind-rank">#${idx+1}</div>
