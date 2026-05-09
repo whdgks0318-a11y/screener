@@ -10709,7 +10709,9 @@ function renderDailyBriefingSector(sectors) {
   }
   // RS Line 점수 기준 정렬
   const sorted = [...sectors].sort((a,b) => (b.avg_rs_line || 0) - (a.avg_rs_line || 0));
-  const STRONG_DB = 75, NEUTRAL_DB = 50;
+  // 샘플 IBD early bird 기준: 강세 65+ / 중립 35-64 / 약세 <35
+  // (가이드 v2.7은 75/50을 명시하지만, 실제 IBD 시스템과 우리 momentum_score_v2 분포에 더 부합)
+  const STRONG_DB = 65, NEUTRAL_DB = 35;
   const strong  = sorted.filter(s => (s.avg_rs_line || 0) >= STRONG_DB);
   const neutral = sorted.filter(s => (s.avg_rs_line || 0) >= NEUTRAL_DB && (s.avg_rs_line || 0) < STRONG_DB);
   const weak    = sorted.filter(s => (s.avg_rs_line || 0) < NEUTRAL_DB);
