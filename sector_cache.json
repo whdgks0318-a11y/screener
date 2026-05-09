@@ -11602,5 +11602,11 @@
     "industry": "Shell Companies",
     "marketCap": 75263344,
     "fetched_at": "2026-05-06T07:01:17"
+  },
+  "OFSSO": {
+    "sector": "",
+    "industry": "",
+    "marketCap": 0,
+    "fetched_at": "2026-05-09T06:30:20"
   }
 }
