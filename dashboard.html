@@ -10604,6 +10604,90 @@ function updateMarketPulse(raw, krRaw) {
     const cnt = dist[p.key] || 0, pct = Math.round(cnt/maxCount*100);
     return `<div class="phase-row"><span class="phase-badge ${p.cls}">${p.label}</span><div class="phase-bar-wrap"><div class="phase-bar" style="width:${pct}%;background:${p.barColor}"></div></div><span class="phase-count">${cnt}</span></div>`;
   }).join('');
+
+  // v12 Phase 2: Daily Briefing ① 시장 환경 섹션 갱신
+  try { renderDailyBriefingMarket(regimeKey, regime, mkt, stocks, dt); }
+  catch(e) { console.warn('[Daily Briefing market] 렌더 실패:', e); }
+}
+
+// ═══ v12 Phase 2: Daily Briefing ① 시장 환경 섹션 렌더링 ═══
+// 호출: updateMarketPulse 끝부분 (US/KR 데이터 자동 처리)
+function renderDailyBriefingMarket(regimeKey, regime, mkt, stocks, dt) {
+  const body = document.getElementById('db-market-body');
+  if (!body) return;
+
+  // 종목 통계
+  const total = stocks.length;
+  const stage2 = stocks.filter(s => s.is_stage2).length;
+  const acc    = stocks.filter(s => s.acc2 || s.acc).length;
+  const stage2Pct = total > 0 ? Math.round(stage2 / total * 100) : 0;
+  const accPct    = total > 0 ? Math.round(acc / total * 100) : 0;
+
+  // Breadth (NDFI / S5FI)
+  const ndfi = mkt?.ndfi?.value;
+  const s5fi = mkt?.s5fi?.value;
+  const breadthAvg = (ndfi != null && s5fi != null) ? Math.round((ndfi + s5fi) / 2) : null;
+
+  // 진입 가이드 매핑 (Market Pulse와 동일한 정의)
+  const slotsMap = {confirmed:'3~5개', resumed:'3~5개', pressure:'1~2개', rally:'0~1개', correction:'0개'};
+  const stopMap  = {confirmed:'8% 이내', resumed:'7% 이내', pressure:'5% 이내', rally:'5% 이내', correction:'진입 금지'};
+
+  // 라벨 정리 (이모지 prefix 제거)
+  const cleanLabel = regime.label.replace(/^[🟢🟡🟠🔴◆♦⬥]\s*/,'').replace(/◆/g,'');
+
+  // 데이터 기준 시각
+  const dtStr = dt ? `${dt.toLocaleDateString('ko-KR')} ${dt.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}` : '';
+
+  body.innerHTML = `
+    <!-- Regime + 권장 비중 큰 카드 -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0efea">
+      <div style="flex:1;min-width:200px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${regime.dot}"></span>
+          <span style="font-size:18px;font-weight:700;color:#1a1a1a">${cleanLabel}</span>
+        </div>
+        <div style="font-size:12px;color:#73726c;line-height:1.5">${regime.action}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:#aaa;font-weight:600;letter-spacing:.5px">권장 투자 비중</div>
+        <div style="font-size:24px;font-weight:700;color:${regime.dot}">${regime.invest}</div>
+      </div>
+    </div>
+
+    <!-- 3개 카드 그리드 -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+      <!-- 종목 통계 -->
+      <div style="background:#fafaf8;border-radius:6px;padding:11px 13px;border:1px solid #f0efea">
+        <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.5px;margin-bottom:7px">📊 종목 통계</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:3px 8px;font-size:12px">
+          <span style="color:#888">전체</span><span style="text-align:right;font-weight:700">${total.toLocaleString()}</span>
+          <span style="color:#888">Stage 2</span><span style="text-align:right;font-weight:700;color:#1a8a4a">${stage2.toLocaleString()} <span style="font-size:10px;color:#aaa;font-weight:400">(${stage2Pct}%)</span></span>
+          <span style="color:#888">가속중</span><span style="text-align:right;font-weight:700;color:#185FA5">${acc.toLocaleString()} <span style="font-size:10px;color:#aaa;font-weight:400">(${accPct}%)</span></span>
+        </div>
+      </div>
+
+      <!-- Breadth (시장 폭) -->
+      <div style="background:#fafaf8;border-radius:6px;padding:11px 13px;border:1px solid #f0efea">
+        <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.5px;margin-bottom:7px">🌐 Breadth (시장 폭)</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:3px 8px;font-size:12px">
+          <span style="color:#888">NDFI</span><span style="text-align:right;font-weight:700">${ndfi != null ? ndfi + '%' : '—'}</span>
+          <span style="color:#888">S5FI</span><span style="text-align:right;font-weight:700">${s5fi != null ? s5fi + '%' : '—'}</span>
+          <span style="color:#aaa;font-size:10px">평균</span><span style="text-align:right;font-size:11px;color:#666">${breadthAvg != null ? breadthAvg + '%' : '—'}</span>
+        </div>
+      </div>
+
+      <!-- 오늘 진입 가이드 -->
+      <div style="background:#fafaf8;border-radius:6px;padding:11px 13px;border:1px solid #f0efea">
+        <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.5px;margin-bottom:7px">🎯 오늘 진입 가이드</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:3px 8px;font-size:12px">
+          <span style="color:#888">신규</span><span style="text-align:right;font-weight:700;color:#185FA5">${slotsMap[regimeKey] || '—'}</span>
+          <span style="color:#888">손절</span><span style="text-align:right;font-weight:700;color:#c0392b">${stopMap[regimeKey] || '—'}</span>
+        </div>
+      </div>
+    </div>
+
+    ${dtStr ? `<div style="margin-top:10px;font-size:10px;color:#aaa;text-align:right">데이터 기준: ${dtStr}</div>` : ''}
+  `;
 }
 
 // 포지션 사이징 계산기 업데이트
