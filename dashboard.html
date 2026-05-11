@@ -10609,10 +10609,17 @@ function updateMarketPulse(raw, krRaw) {
   try {
     renderDailyBriefingMarket(regimeKey, regime, mkt, stocks, dt);
     // v12 Phase 3+4: 섹터/산업 데이터는 한 번만 빌드해서 두 함수에 전달
-    const dbSectors = buildSectorsForTab(stocks);
+    // [v2026-05-11] IBD early bird 정합: 시총 상위 555개 풀로 좁힘 (전체 1935 풀은 양극화로 평균 -22점 하락)
+    //   → 가설 검증: Top 555 평균 63.0 vs IBD 샘플 59.5 (차이 3.5) · 9/11 섹터 ±10 이내 정합
+    const DB_POOL_SIZE = 555;
+    const stocksDB = [...stocks]
+      .filter(s => typeof s.market_cap === 'number' && s.market_cap > 0)
+      .sort((a,b) => b.market_cap - a.market_cap)
+      .slice(0, DB_POOL_SIZE);
+    const dbSectors = buildSectorsForTab(stocksDB);
     renderDailyBriefingSector(dbSectors);
     renderDailyBriefingIndustry(dbSectors);
-    // v12 Phase 5: ④ 진입 후보 — 단순 필터링 (Phase × RS Line 점수)
+    // v12 Phase 5: ④ 진입 후보 — 단순 필터링 (Phase × RS Line 점수) — 전체 풀 사용
     renderDailyBriefingCandidates(stocks);
   }
   catch(e) { console.warn('[Daily Briefing] 렌더 실패:', e); }
@@ -10727,6 +10734,10 @@ function renderDailyBriefingSector(sectors) {
   const C_WEAK    = {bg:'#fff0f0', text:'#a13030', border:'#e8a0a0'};
 
   body.innerHTML = `
+    <!-- 풀 안내 (v2026-05-11: IBD early bird 정합) -->
+    <div style="font-size:10px;color:#888;margin-bottom:8px;text-align:right;padding-right:2px">
+      📊 시총 상위 ${sorted.reduce((sum,s) => sum + (s.count||0), 0)}개 종목 기준 · IBD early bird 정합 풀 (전체 1935 중 잡종목 제외)
+    </div>
     <!-- 1위 메가 카드 -->
     <div style="background:linear-gradient(135deg,#fafff7,#f0f9ed);border:1px solid #b6d8a3;border-radius:8px;padding:14px 16px;margin-bottom:14px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
@@ -12150,7 +12161,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-05-11-RSLine-score-restored] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-05-11-DB-pool555] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
