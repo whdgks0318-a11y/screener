@@ -10709,9 +10709,9 @@ function renderDailyBriefingSector(sectors) {
   }
   // RS Line 점수 기준 정렬
   const sorted = [...sectors].sort((a,b) => (b.avg_rs_line || 0) - (a.avg_rs_line || 0));
-  // 샘플 IBD early bird 기준: 강세 65+ / 중립 35-64 / 약세 <35
-  // (가이드 v2.7은 75/50을 명시하지만, 실제 IBD 시스템과 우리 momentum_score_v2 분포에 더 부합)
-  const STRONG_DB = 65, NEUTRAL_DB = 35;
+  // 가이드 기준: 강세 75+ / 중립 50-74 / 약세 <50 (이미지 3 명시)
+  // (rs_line_score = momentum_score_v2 = RS 절대강도(40) + 1주변화(25) + 1~3주변화(20) + 가속(20))
+  const STRONG_DB = 75, NEUTRAL_DB = 50;
   const strong  = sorted.filter(s => (s.avg_rs_line || 0) >= STRONG_DB);
   const neutral = sorted.filter(s => (s.avg_rs_line || 0) >= NEUTRAL_DB && (s.avg_rs_line || 0) < STRONG_DB);
   const weak    = sorted.filter(s => (s.avg_rs_line || 0) < NEUTRAL_DB);
@@ -12150,7 +12150,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-05-02-phaseD-patch2-cacheBust] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-05-11-RSLine-score-restored] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
