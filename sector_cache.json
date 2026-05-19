@@ -11632,5 +11632,23 @@
     "industry": "Shell Companies",
     "marketCap": 150500992,
     "fetched_at": "2026-05-15T08:43:44"
+  },
+  "AXIN": {
+    "sector": "Financial Services",
+    "industry": "Shell Companies",
+    "marketCap": 346120032,
+    "fetched_at": "2026-05-19T11:18:54"
+  },
+  "HCMAU": {
+    "sector": "Financial Services",
+    "industry": "Shell Companies",
+    "marketCap": 0,
+    "fetched_at": "2026-05-19T11:18:54"
+  },
+  "METCI": {
+    "sector": "",
+    "industry": "",
+    "marketCap": 0,
+    "fetched_at": "2026-05-19T11:18:55"
   }
 }
