@@ -11656,5 +11656,23 @@
     "industry": "Shell Companies",
     "marketCap": 292204608,
     "fetched_at": "2026-05-19T23:05:17"
+  },
+  "TMUSL": {
+    "sector": "",
+    "industry": "",
+    "marketCap": 0,
+    "fetched_at": "2026-05-21T23:27:58"
+  },
+  "TMUSI": {
+    "sector": "",
+    "industry": "",
+    "marketCap": 0,
+    "fetched_at": "2026-05-21T23:27:58"
+  },
+  "TMUSZ": {
+    "sector": "",
+    "industry": "",
+    "marketCap": 0,
+    "fetched_at": "2026-05-21T23:27:58"
   }
 }
