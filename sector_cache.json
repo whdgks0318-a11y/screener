@@ -11674,5 +11674,29 @@
     "industry": "",
     "marketCap": 0,
     "fetched_at": "2026-05-21T23:27:58"
+  },
+  "FLY": {
+    "sector": "Industrials",
+    "industry": "Aerospace & Defense",
+    "marketCap": 7931643392,
+    "fetched_at": "2026-05-22T22:53:32"
+  },
+  "WYFI": {
+    "sector": "Technology",
+    "industry": "Information Technology Services",
+    "marketCap": 1165763200,
+    "fetched_at": "2026-05-22T22:53:32"
+  },
+  "BSAA": {
+    "sector": "Financial Services",
+    "industry": "Shell Companies",
+    "marketCap": 90051912,
+    "fetched_at": "2026-05-22T22:53:32"
+  },
+  "QUMSU": {
+    "sector": "Financial Services",
+    "industry": "Shell Companies",
+    "marketCap": 0,
+    "fetched_at": "2026-05-22T22:53:33"
   }
 }
