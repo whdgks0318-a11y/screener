@@ -11704,5 +11704,11 @@
     "industry": "Department Stores",
     "marketCap": 2692947712,
     "fetched_at": "2026-05-26T23:18:58"
+  },
+  "HTFL": {
+    "sector": "Healthcare",
+    "industry": "Health Information Services",
+    "marketCap": 2525131520,
+    "fetched_at": "2026-05-27T23:26:46"
   }
 }
