@@ -13351,5 +13351,17 @@
     "marketCap": 0,
     "error": "Too Many Requests. Rate limited. Try after a while.",
     "fetched_at": "2026-05-28T23:17:09"
+  },
+  "HVMCU": {
+    "sector": "Financial Services",
+    "industry": "Shell Companies",
+    "marketCap": 0,
+    "fetched_at": "2026-05-29T23:09:14"
+  },
+  "MKLYU": {
+    "sector": "Financial Services",
+    "industry": "Shell Companies",
+    "marketCap": 0,
+    "fetched_at": "2026-05-29T23:09:14"
   }
 }
