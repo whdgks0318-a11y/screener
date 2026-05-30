@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ㅇ#!/usr/bin/env python3
 """
 enrich_sectors.py — Yahoo Finance에서 GICS 섹터/업종/시가총액 정보를 가져와
 screener_data.json 에 병합하는 보조 스크립트.
@@ -81,6 +81,12 @@ def save_cache(cache):
 
 def is_cache_fresh(entry):
     if not entry or "fetched_at" not in entry:
+        return False
+    # [v2026-05-30 fix v2] 빈 캐시 (sector/industry 둘 다 없음)
+    # → fetched_at 시간과 무관하게 항상 invalid → 매번 재시도
+    # → 네트워크 일시 실패 / IPO 직후 미등록 등의 케이스 자동 복구
+    # → 정상 캐시는 30일 유효 (기존 동작 유지)
+    if not (entry.get("sector") or entry.get("industry")):
         return False
     try:
         fetched = datetime.fromisoformat(entry["fetched_at"])
