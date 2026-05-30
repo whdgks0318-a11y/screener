@@ -1,4 +1,4 @@
-ㅇ#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 enrich_sectors.py — Yahoo Finance에서 GICS 섹터/업종/시가총액 정보를 가져와
 screener_data.json 에 병합하는 보조 스크립트.
