@@ -1723,6 +1723,55 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     overflow-x:hidden !important;
   }
 }
+/* ═══ [v2026-05-30] 테마 분석 카드 (IBD Early Bird v2.0 스타일) ═══ */
+.tm-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+.tm-card{background:#fff;border:1px solid #e0e0d8;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);transition:box-shadow .15s}
+.tm-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.tm-card-weak{background:#fff8f8;border-color:#f5d4d4}
+.tm-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.tm-card-head-l{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;flex:1}
+.tm-card-head-r{text-align:right;min-width:90px}
+.tm-rank{font-size:11px;color:#888;font-weight:600}
+.tm-auto{font-size:9px;background:#e8eef5;color:#1a56db;padding:1px 5px;border-radius:3px;font-weight:700;letter-spacing:.3px}
+.tm-ind-name{font-size:14px;font-weight:700;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis}
+.tm-score{font-size:24px;font-weight:800;line-height:1;display:block}
+.tm-metric-row{display:flex;gap:8px;font-size:10px;color:#666;margin-top:3px;justify-content:flex-end}
+.tm-score-bar{height:5px;background:#f0efea;border-radius:99px;overflow:hidden;margin-bottom:10px}
+.tm-score-bar-fill{height:100%;border-radius:99px;transition:width .3s}
+.tm-trend{display:flex;gap:10px;align-items:center;padding:7px 10px;background:#fafaf6;border:1px solid #ece9df;border-radius:6px;font-size:11px;color:#555;margin-bottom:10px;flex-wrap:wrap}
+.tm-trend-stat{font-weight:600;color:#333}
+.tm-metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.tm-metric-cell{background:#fafaf6;border:1px solid #ece9df;border-radius:6px;padding:7px 8px;text-align:center}
+.tm-metric-lbl{font-size:10px;color:#888;margin-bottom:2px}
+.tm-metric-val{font-size:14px;font-weight:700;color:#1a1a1a}
+.tm-metric-val.green{color:#1a8a4a}
+.tm-metric-val.blue{color:#185FA5}
+.tm-metric-val.amber{color:#a96e00}
+.tm-metric-val.red{color:#c62828}
+.tm-phase-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.tm-phase-pill{font-size:10px;background:#f5f3eb;padding:2px 7px;border-radius:99px;color:#444;font-weight:600}
+.tm-badge-row{display:flex;gap:6px;margin-bottom:8px}
+.tm-badge-new{font-size:10px;background:#e8f5e9;color:#1b5e20;padding:2px 7px;border-radius:4px;font-weight:700;border:1px solid #c8e6c9}
+.tm-badge-warn{font-size:10px;background:#fce4ec;color:#a14d6e;padding:2px 7px;border-radius:4px;font-weight:700;border:1px solid #f8bbd0}
+.tm-stocks-head{font-size:10px;color:#888;margin-bottom:6px;border-top:1px dashed #e8e6dc;padding-top:8px}
+.tm-stocks{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.tm-stock-chip{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;background:#fff;border:1px solid #e0e0d8;border-radius:99px;font-size:11px;cursor:pointer;transition:all .12s;font-family:'Courier New',monospace}
+.tm-stock-chip:hover{background:#f5f8ff;border-color:#1a56db;transform:translateY(-1px)}
+.tm-stock-chip b{font-weight:700;color:#1a1a1a}
+.tm-stock-score{font-weight:700;color:#1a5c1a}
+.tm-stock-cls{font-size:9px;padding:1px 4px;border-radius:3px;font-weight:700;letter-spacing:.3px}
+.tm-class-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:10px}
+.tm-class-pill{padding:2px 8px;border-radius:4px;font-weight:700}
+.tm-cls-L{background:#e8f5e9;color:#1b5e20}
+.tm-cls-F{background:#fff8e1;color:#a96e00}
+.tm-cls-Lg{background:#fce4ec;color:#a14d6e}
+.tm-sector-tag{color:#888;font-size:10px;margin-left:auto}
+@media (max-width:768px){
+  .tm-cards-grid{grid-template-columns:1fr}
+  .tm-metric-grid{grid-template-columns:repeat(2,1fr)}
+  .tm-score{font-size:22px}
+  .tm-ind-name{font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -10784,8 +10833,8 @@ function renderDailyBriefingSector(sectors) {
   `;
 }
 
-// ═══ v12 Phase 4: Daily Briefing ③ 강세 산업 ═══
-// 모든 섹터의 산업 평탄화 → RS Line 점수 정렬 → 상위/하위 chip
+// ═══ v12 Phase 4: Daily Briefing ③ 강세 산업 (v2026-05-30 IBD Early Bird v2.0 스타일 개편) ═══
+// 모든 섹터의 산업 평탄화 → RS Line 점수 정렬 → 풍부한 카드 (헤더+메트릭+Phase+종목리스트)
 function renderDailyBriefingIndustry(sectors) {
   const body = document.getElementById('db-industry-body');
   if (!body) return;
@@ -10808,32 +10857,125 @@ function renderDailyBriefingIndustry(sectors) {
     body.innerHTML = '<div class="db-placeholder">⚠ 산업 데이터 없음<br><span style="font-size:11px;color:#aaa">(KR 시장은 industry 매핑이 별도 작업으로 예정 — 핸드오프 이슈 A 참조)</span></div>';
     return;
   }
-  // RS Line 점수 정렬
-  const sorted = [...all].sort((a,b) => b.score - a.score);
-  // 상위 8개 / 하위 5개
+  // RS Line 점수 정렬 (큰 풀에서는 4종목 이상만 의미 있음)
+  const filtered = all.filter(ind => ind.count >= 3);
+  const sorted = [...filtered].sort((a,b) => b.score - a.score);
+  // 상위 8개 강세 / 하위 5개 약세
   const strongTop = sorted.slice(0, Math.min(8, sorted.length));
   const weakBottom = sorted.length > 13 ? sorted.slice(-5) : [];
 
-  const chip = (ind, c) => {
-    const score = Math.round(ind.score);
-    return `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:${c.bg};color:${c.text};border:1px solid ${c.border};border-radius:99px;font-size:12px;font-weight:600;margin:2px" title="섹터: ${ind.sectorName} · ${ind.count}종목">${ind.name} <span style="font-weight:700">${score}</span><span style="font-size:9px;color:#aaa;font-weight:400">·${ind.count}</span></span>`;
+  // ── 종목 chip 헬퍼 (색상 동그라미 + 분류 배지) ──
+  // 색상: Phase 기반 — 🟢 강세(4+/4/5) · 🔵 베이스(3) · 🟠 매집(2) · 🔴 회피(67/01)
+  const phaseDot = (s) => {
+    const ph = s.phase || '';
+    if (ph === '4plus' || ph === '4' || ph === '5') return {emoji:'🟢', cls:'pd-strong'};
+    if (ph === '3') return {emoji:'🔵', cls:'pd-base'};
+    if (ph === '2') return {emoji:'🟠', cls:'pd-acc'};
+    if (ph === '67' || ph === '01') return {emoji:'🔴', cls:'pd-avoid'};
+    return {emoji:'⚪', cls:'pd-none'};
   };
-  const C_STRONG = {bg:'#eaf6ee', text:'#1a5c1a', border:'#9ed4b0'};
-  const C_WEAK   = {bg:'#fff0f0', text:'#a13030', border:'#e8a0a0'};
+  // 분류 배지: L (RS Line ≥70) / F (41-69) / Lg (≤40)
+  const classBadge = (rsLine) => {
+    if (rsLine >= 70) return {label:'L', bg:'#e8f5e9', color:'#1b5e20'};
+    if (rsLine >= 41) return {label:'F', bg:'#fff8e1', color:'#a96e00'};
+    return {label:'Lg', bg:'#fce4ec', color:'#a14d6e'};
+  };
+  const stockChip = (s) => {
+    const rsLine = Math.round(s.rs_line_score || 0);
+    const dot = phaseDot(s);
+    const cls = classBadge(rsLine);
+    const tooltip = `${s.name || s.ticker} · IBD RS ${s.rs ?? '—'} / RS now ${s.rs_now ?? '—'} / Phase ${s.phase || '—'} · ${s.sector || ''}`.replace(/"/g,'&quot;');
+    return `<span class="tm-stock-chip" title="${tooltip}" onclick="openDetail('${s.ticker}',${safeStringify(s)},'us')">${dot.emoji} <b>${s.ticker}</b> <span class="tm-stock-score">${rsLine}</span> <span class="tm-stock-cls" style="background:${cls.bg};color:${cls.color}">${cls.label}</span></span>`;
+  };
+
+  // ── Phase 카운트 줄 ──
+  const phaseRow = (counts) => {
+    const order = [['4plus','🟢','P4+'], ['4','🟢','P4'], ['5','🟢','P5'], ['3','🔵','P3'], ['2','🟠','P2'], ['67','🔴','P67'], ['01','🔴','P01']];
+    const items = order.filter(([k]) => counts[k] > 0)
+      .map(([k,emoji,lbl]) => `<span class="tm-phase-pill">${emoji}${lbl}:${counts[k]}</span>`);
+    return items.length ? items.join('') : '<span style="font-size:10px;color:#bbb">Phase 데이터 없음</span>';
+  };
+
+  // ── 개별 산업 카드 렌더 ──
+  const renderCard = (ind, rank, isWeak) => {
+    const score = Math.round(ind.score);
+    const ibdRs = Math.round(ind.avg_rs || 0);
+    const comp = Math.round(ind.avg_comp || 0);
+    const accRatio = ind.acc_ratio || 0;
+    const acc2Ratio = ind.acc2_ratio || 0;
+    const h52Ratio = ind.h52_ratio || 0;
+    const w1 = ind.avg_w1 || 0;
+    const w1Str = (w1 >= 0 ? '+' : '') + w1.toFixed(1);
+    const w1Color = w1 >= 0 ? '#1a8a4a' : '#c62828';
+    // 점수 막대 색상 (RS Line 점수 기반)
+    const barColor = isWeak ? '#c62828' : (score >= 70 ? '#1a8a4a' : score >= 50 ? '#185FA5' : '#a96e00');
+    // 종목 리스트 — Top 20만 표시 (너무 많으면 가독성 떨어짐)
+    const stocksToShow = (ind.allStocks || []).slice(0, 20);
+    const moreCount = (ind.allStocks || []).length - stocksToShow.length;
+    return `
+    <div class="tm-card ${isWeak ? 'tm-card-weak' : ''}">
+      <div class="tm-card-head">
+        <div class="tm-card-head-l">
+          <span class="tm-rank">#${rank}</span>
+          <span class="tm-auto">AUTO</span>
+          <span class="tm-ind-name">📊 ${ind.name}</span>
+        </div>
+        <div class="tm-card-head-r">
+          <span class="tm-score" style="color:${barColor}">${score}</span>
+          <div class="tm-metric-row">
+            <span title="가속률 (acc=true 종목 비율)">🔥 ${accRatio}</span>
+            <span title="신고가율 (h52_new 종목 비율)">📈 ${h52Ratio}</span>
+            <span title="1주 평균 변화율" style="color:${w1Color}">📊 ${w1Str}</span>
+          </div>
+        </div>
+      </div>
+      <div class="tm-score-bar"><div class="tm-score-bar-fill" style="width:${Math.min(100,score)}%;background:${barColor}"></div></div>
+      <!-- 추세 지속성 (단순화 버전) -->
+      <div class="tm-trend">
+        <span>📈 추세 지속성</span>
+        <span class="tm-trend-stat">L ${ind.leader_count}/${ind.count} (${ind.count?Math.round(ind.leader_count/ind.count*100):0}%)</span>
+        <span class="tm-trend-stat">방향 ${w1 >= 0.5 ? '↗' : w1 <= -0.5 ? '↘' : '→'} (${w1Str})</span>
+      </div>
+      <!-- 메트릭 2x2 그리드 -->
+      <div class="tm-metric-grid">
+        <div class="tm-metric-cell"><div class="tm-metric-lbl">IBD RS</div><div class="tm-metric-val ${ibdRs>=80?'green':ibdRs>=60?'blue':ibdRs>=40?'amber':'red'}">${ibdRs}</div></div>
+        <div class="tm-metric-cell"><div class="tm-metric-lbl">Comp</div><div class="tm-metric-val ${comp>=80?'green':comp>=60?'blue':comp>=40?'amber':'red'}">${comp}</div></div>
+        <div class="tm-metric-cell"><div class="tm-metric-lbl">종목</div><div class="tm-metric-val">${ind.count}개</div></div>
+        <div class="tm-metric-cell"><div class="tm-metric-lbl">가속</div><div class="tm-metric-val ${acc2Ratio>=20?'green':acc2Ratio>=10?'blue':''}">${acc2Ratio}%</div></div>
+      </div>
+      <!-- Phase 분포 줄 -->
+      <div class="tm-phase-row">${phaseRow(ind.phase_counts || {})}</div>
+      <!-- 배지 줄 (🆕 신규 / ⚠️ 하향) -->
+      ${(ind.new_count > 0 || ind.warn_count > 0) ? `
+      <div class="tm-badge-row">
+        ${ind.new_count > 0 ? `<span class="tm-badge-new">🆕 ${ind.new_count}</span>` : ''}
+        ${ind.warn_count > 0 ? `<span class="tm-badge-warn">⚠️ ${ind.warn_count}</span>` : ''}
+      </div>` : ''}
+      <!-- 구성 종목 리스트 -->
+      <div class="tm-stocks-head">구성 종목 (${ind.count}) · 숫자 = RS Line 점수, 클릭 시 상세${moreCount > 0 ? ` · +${moreCount}개 더 있음` : ''}</div>
+      <div class="tm-stocks">${stocksToShow.map(stockChip).join('')}</div>
+      <!-- 분류 카운트 -->
+      <div class="tm-class-row">
+        <span class="tm-class-pill tm-cls-L">L · ${ind.leader_count}</span>
+        <span class="tm-class-pill tm-cls-F">F · ${ind.follower_count}</span>
+        <span class="tm-class-pill tm-cls-Lg">Lg · ${ind.laggard_count}</span>
+        <span class="tm-sector-tag">섹터: ${ind.sectorName}</span>
+      </div>
+    </div>`;
+  };
 
   body.innerHTML = `
-    <div style="margin-bottom:${weakBottom.length ? '12px' : '0'}">
-      <div style="font-size:11px;font-weight:700;color:#1a5c1a;margin-bottom:6px">🟢 강세 산업 Top ${strongTop.length} · RS Line 점수 상위 (전체 ${sorted.length}개 중)</div>
-      <div>${strongTop.map(ind => chip(ind, C_STRONG)).join('')}</div>
+    <div style="font-size:11px;color:#888;margin-bottom:8px;text-align:right">
+      📊 RS Rating 70+ 풀 · 산업당 3종목 이상만 표시 (전체 ${all.length}개 중 ${sorted.length}개 분석)
     </div>
-
+    <div class="tm-cards-grid">
+      ${strongTop.map((ind, i) => renderCard(ind, i+1, false)).join('')}
+    </div>
     ${weakBottom.length ? `
-      <div>
-        <div style="font-size:11px;font-weight:700;color:#a13030;margin-bottom:6px">🔴 약세 산업 (하위 ${weakBottom.length}개) · 진입 회피</div>
-        <div>${weakBottom.map(ind => chip(ind, C_WEAK)).join('')}</div>
+      <div style="margin-top:18px;font-size:12px;font-weight:700;color:#a13030;border-bottom:1px solid #f5cccc;padding-bottom:6px;margin-bottom:10px">🔴 약세 산업 (하위 ${weakBottom.length}개) · 진입 회피</div>
+      <div class="tm-cards-grid">
+        ${weakBottom.map((ind, i) => renderCard(ind, sorted.length - weakBottom.length + i + 1, true)).join('')}
       </div>` : ''}
-
-    <div style="margin-top:10px;font-size:10px;color:#aaa;text-align:right">RS Line 점수 평균 기준 · 마우스 hover 시 소속 섹터 표시</div>
   `;
 }
 
@@ -12205,7 +12347,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-05-11-modal-RS4종+pool-RS70] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-05-30-theme-cards-v2] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
@@ -12750,13 +12892,27 @@ function buildSectorsForTab(stocks) {
     // 세부 업종(Industry) 집계
     const ind = (s.industry || s.ind_grp || '').trim();
     if (ind && ind !== 'N/A' && ind !== 'None') {
-      if (!secMap[sec].indMap[ind]) secMap[sec].indMap[ind] = { name:ind, stocks:[], rs:[], rs_now:[], rs_line_score:[], mktcap:0 };
+      if (!secMap[sec].indMap[ind]) secMap[sec].indMap[ind] = { name:ind, stocks:[], rs:[], rs_now:[], rs_line_score:[], mktcap:0, w1:[], acc:0, acc2:0, h52_new:0, phase_counts:{}, new_count:0, warn_count:0 };
       secMap[sec].indMap[ind].stocks.push(s);
       secMap[sec].indMap[ind].rs.push(s.rs || 0);
       secMap[sec].indMap[ind].rs_now.push(s.rs_now || 0);
       // v11: 업종별 RS Line 점수도 누적
       if (typeof s.rs_line_score === 'number') secMap[sec].indMap[ind].rs_line_score.push(s.rs_line_score);
       secMap[sec].indMap[ind].mktcap += (s.mktcap || 0);
+      // [v2026-05-30 테마분석 v2] 추가 메트릭
+      if (typeof s.w1 === 'number') secMap[sec].indMap[ind].w1.push(s.w1);
+      if (s.acc)  secMap[sec].indMap[ind].acc++;
+      if (s.acc2) secMap[sec].indMap[ind].acc2++;
+      if (s.h52_new) secMap[sec].indMap[ind].h52_new++;
+      // Phase 분포 카운트
+      const ph = s.phase || '—';
+      secMap[sec].indMap[ind].phase_counts[ph] = (secMap[sec].indMap[ind].phase_counts[ph] || 0) + 1;
+      // 🆕 Phase 상향 / ⚠️ Phase 하향
+      if (s.phase_changed_up) secMap[sec].indMap[ind].new_count++;
+      // phase_yesterday > phase 비교 (강도 기준: 4plus > 4 > 5 > 3 > 2 > 67 > 01)
+      const phaseRank = {'4plus':7,'4':6,'5':5,'3':4,'2':3,'67':2,'01':1,'—':0};
+      const py = s.phase_yesterday;
+      if (py && phaseRank[py] > phaseRank[ph]) secMap[sec].indMap[ind].warn_count++;
     }
   });
 
@@ -12773,6 +12929,22 @@ function buildSectorsForTab(stocks) {
       avg_rs_line_score:  ind.rs_line_score.length ? avg(ind.rs_line_score) : null,
       mktcap:             ind.mktcap,
       top:                [...ind.stocks].sort((a,b)=>(b.rs||0)-(a.rs||0)).slice(0,5),
+      // [v2026-05-30 테마분석 v2] 추가 메트릭
+      avg_w1:             avgF(ind.w1),
+      acc_ratio:          ind.stocks.length ? Math.round((ind.acc / ind.stocks.length) * 100) : 0,
+      acc2_ratio:         ind.stocks.length ? Math.round((ind.acc2 / ind.stocks.length) * 100) : 0,
+      h52_ratio:          ind.stocks.length ? Math.round((ind.h52_new / ind.stocks.length) * 100) : 0,
+      phase_counts:       ind.phase_counts,
+      new_count:          ind.new_count,
+      warn_count:         ind.warn_count,
+      // 종목 분류 (L/F/Lg) — RS Line 점수 기준
+      leader_count:       ind.stocks.filter(st => (st.rs_line_score||0) >= 70).length,
+      follower_count:     ind.stocks.filter(st => (st.rs_line_score||0) >= 41 && (st.rs_line_score||0) < 70).length,
+      laggard_count:      ind.stocks.filter(st => (st.rs_line_score||0) <= 40).length,
+      // 전체 종목 (RS Line 점수순 정렬)
+      allStocks:          [...ind.stocks].sort((a,b) => (b.rs_line_score||0) - (a.rs_line_score||0)),
+      // 평균 Comp (산업 단위)
+      avg_comp:           Math.round(avg(ind.rs) * 0.5 + avg(ind.rs_now) * 0.5),
     })).sort((a,b) => ((b.avg_rs_line_score ?? b.avg_rs) - (a.avg_rs_line_score ?? a.avg_rs)));
     const avgRs = avg(s.rs);
     const avgRsNow = avg(s.rs_now);
