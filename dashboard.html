@@ -4592,10 +4592,19 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
       </div>
     </div>
     <div class="dp-section">
-      <div class="dp-section-title">📈 RS · Stage 분석</div>
-      <div class="dp-grid-3">
-        <div class="dp-item"><div class="dp-item-lbl">RS Score</div><div class="dp-item-val blue" id="dp-rs">—</div><div class="dp-rs-bar-wrap"><div class="dp-rs-bar" id="dp-rs-bar" style="width:0%"></div></div></div>
-        <div class="dp-item"><div class="dp-item-lbl">RS Now</div><div class="dp-item-val" id="dp-rsnow">—</div></div>
+      <div class="dp-section-title">📈 RS 지표 4종 · Stage 분석</div>
+      <!-- 가이드 의도: IBD RS (후행) / RS now (선행) / RS Line 점수 (종합 모멘텀) + 갭 (RS now - IBD RS) -->
+      <div class="dp-grid-3" style="margin-bottom:6px">
+        <div class="dp-item" title="IBD RS Rating — 12개월 가격 성과 백분위 (1-99) · 후행 지표"><div class="dp-item-lbl">IBD RS</div><div class="dp-item-val blue" id="dp-rs">—</div><div class="dp-rs-bar-wrap"><div class="dp-rs-bar" id="dp-rs-bar" style="width:0%"></div></div></div>
+        <div class="dp-item" title="RS now — RS Line 52주 백분위 (1-99) · 선행 지표"><div class="dp-item-lbl">RS now</div><div class="dp-item-val" id="dp-rsnow">—</div></div>
+        <div class="dp-item" title="RS Line 점수 (momentum_score_v2) — 변화율+가속도 종합 0~100"><div class="dp-item-lbl">RS Line 점수</div><div class="dp-item-val" id="dp-rsline">—</div></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;font-size:11px;color:#666">
+        <span title="갭 = RS now - IBD RS · 양수면 IBD가 아직 반영 못한 신규 부상 / 음수면 약화 중">갭 (RS now − IBD RS):</span>
+        <span id="dp-rsgap" style="font-weight:700;padding:2px 8px;border-radius:4px;background:#f5f5f5;color:#666">—</span>
+        <span id="dp-rsgap-label" style="font-size:10px;color:#888"></span>
+      </div>
+      <div class="dp-grid" style="margin-bottom:6px">
         <div class="dp-item"><div class="dp-item-lbl">Stage</div><div class="dp-item-val" id="dp-stage">—</div></div>
       </div>
       <div style="margin-top:8px"><div style="font-size:11px;color:#aaa;margin-bottom:4px">Stage 체크 (7개 조건)</div><div class="dp-dots-row" id="dp-dots"></div></div>
@@ -10609,13 +10618,12 @@ function updateMarketPulse(raw, krRaw) {
   try {
     renderDailyBriefingMarket(regimeKey, regime, mkt, stocks, dt);
     // v12 Phase 3+4: 섹터/산업 데이터는 한 번만 빌드해서 두 함수에 전달
-    // [v2026-05-11] IBD early bird 정합: 시총 상위 555개 풀로 좁힘 (전체 1935 풀은 양극화로 평균 -22점 하락)
-    //   → 가설 검증: Top 555 평균 63.0 vs IBD 샘플 59.5 (차이 3.5) · 9/11 섹터 ±10 이내 정합
-    const DB_POOL_SIZE = 555;
-    const stocksDB = [...stocks]
-      .filter(s => typeof s.mktcap === 'number' && s.mktcap > 0)
-      .sort((a,b) => b.mktcap - a.mktcap)
-      .slice(0, DB_POOL_SIZE);
+    // [v2026-05-11] IBD early bird 정합: RS Rating 70+ 풀 (IBD 가이드 표준 사전 필터)
+    //   → 가이드 명시: "RS Rating 70+ = 시장 평균 이상" (라인 575, 610)
+    //   → 검증: RS 70+ 풀 평균 62.3 ≈ IBD 샘플 평균 59.5 (차이 2.8, 거의 일치)
+    //   → 종목 수 577개 ≈ IBD 샘플 555개
+    const DB_RS_MIN = 70;
+    const stocksDB = stocks.filter(s => typeof s.rs === 'number' && s.rs >= DB_RS_MIN);
     const dbSectors = buildSectorsForTab(stocksDB);
     renderDailyBriefingSector(dbSectors);
     renderDailyBriefingIndustry(dbSectors);
@@ -10736,7 +10744,7 @@ function renderDailyBriefingSector(sectors) {
   body.innerHTML = `
     <!-- 풀 안내 (v2026-05-11: IBD early bird 정합) -->
     <div style="font-size:10px;color:#888;margin-bottom:8px;text-align:right;padding-right:2px">
-      📊 시총 상위 ${sorted.reduce((sum,s) => sum + (s.count||0), 0)}개 종목 기준 · IBD early bird 정합 풀 (전체 1935 중 잡종목 제외)
+      📊 RS Rating 70+ 종목 기준 (${sorted.reduce((sum,s) => sum + (s.count||0), 0)}개) · IBD 표준 사전 필터 "시장 평균 이상"
     </div>
     <!-- 1위 메가 카드 -->
     <div style="background:linear-gradient(135deg,#fafff7,#f0f9ed);border:1px solid #b6d8a3;border-radius:8px;padding:14px 16px;margin-bottom:14px">
@@ -11207,7 +11215,43 @@ function openDetail(ticker, s, mkt) {
   if (rsEl) { rsEl.textContent = rs; rsEl.className = 'dp-item-val '+(rs>=90?'green':rs>=75?'blue':rs>=50?'amber':'red'); }
   const rsBar = document.getElementById('dp-rs-bar');
   if (rsBar) rsBar.style.width = Math.min(100,rs)+'%';
-  setText('dp-rsnow', s.rs_now||s.ibd_rs||'—');
+  // RS now (RS Line 52주 백분위 · 선행) — 색상도 가이드 임계 적용
+  const rsNow = s.rs_now || s.ibd_rs || null;
+  const rsNowEl = document.getElementById('dp-rsnow');
+  if (rsNowEl) {
+    rsNowEl.textContent = rsNow ?? '—';
+    if (typeof rsNow === 'number') {
+      rsNowEl.className = 'dp-item-val '+(rsNow>=90?'green':rsNow>=75?'blue':rsNow>=50?'amber':'red');
+    }
+  }
+  // RS Line 점수 (momentum_score_v2 종합 모멘텀 0~100) — 가이드 의도 명시
+  const rsLine = (typeof s.rs_line_score === 'number') ? s.rs_line_score : null;
+  const rsLineEl = document.getElementById('dp-rsline');
+  if (rsLineEl) {
+    rsLineEl.textContent = rsLine ?? '—';
+    if (typeof rsLine === 'number') {
+      rsLineEl.className = 'dp-item-val '+(rsLine>=80?'green':rsLine>=60?'blue':rsLine>=40?'amber':'red');
+    }
+  }
+  // 갭 (RS now − IBD RS) — 가이드 핵심 신호 (양수=신규부상, 음수=약화)
+  const gapEl = document.getElementById('dp-rsgap');
+  const gapLblEl = document.getElementById('dp-rsgap-label');
+  if (gapEl && typeof rsNow === 'number' && typeof rs === 'number' && rs > 0) {
+    const gap = rsNow - rs;
+    const gapStr = (gap >= 0 ? '+' : '') + gap;
+    let bg = '#f5f5f5', color = '#666', lbl = '안정';
+    if (gap >= 10) { bg = '#e8f5e9'; color = '#2e7d32'; lbl = '🔥 신규 부상 중 (강한 시그널)'; }
+    else if (gap >= 5) { bg = '#f1f8e9'; color = '#558b2f'; lbl = '↗ 부상 중'; }
+    else if (gap <= -10) { bg = '#ffebee'; color = '#c62828'; lbl = '⚠️ 약화 중 (경고)'; }
+    else if (gap <= -5) { bg = '#fff3e0'; color = '#e65100'; lbl = '↘ 약화 시작'; }
+    gapEl.textContent = gapStr;
+    gapEl.style.background = bg;
+    gapEl.style.color = color;
+    if (gapLblEl) gapLblEl.textContent = lbl;
+  } else if (gapEl) {
+    gapEl.textContent = '—';
+    if (gapLblEl) gapLblEl.textContent = '';
+  }
   const dotCount = (s.pass_dots||[]).filter(Boolean).length;
   setText('dp-stage', s.is_stage2 ? '✓ Stage 2' : dotCount>=4 ? `S2초반(${dotCount}/7)` : `Stage 1(${dotCount}/7)`);
   const dotLabels = ['MA배열','MA기울기','MA위','거래량','고점','RS','가속'];
@@ -12161,7 +12205,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-05-11-DB-pool555-fix] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-05-11-modal-RS4종+pool-RS70] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
