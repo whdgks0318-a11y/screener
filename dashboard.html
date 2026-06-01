@@ -1775,19 +1775,43 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .tm-cls-F{background:#fff8e1;color:#a96e00}
 .tm-cls-Lg{background:#fce4ec;color:#a14d6e}
 .tm-sector-tag{color:#888;font-size:10px;margin-left:auto}
+/* ═══ [v2026-06-01 D단계] 신규 탭 "🎯 테마 분석" v3.0 ═══ */
+.ta-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #e0dfd8;flex-wrap:wrap}
+.ta-title{font-size:24px;font-weight:700;color:#185FA5;margin-bottom:4px}
+.ta-subtitle{font-size:13px;color:#73726c}
+.ta-actions{display:flex;gap:6px;flex-wrap:wrap}
+.ta-action-btn{padding:6px 12px;border:1px solid #d0cdc0;background:#fff;border-radius:6px;font-size:12px;font-weight:600;color:#444;cursor:pointer;transition:all .12s}
+.ta-action-btn:hover:not(:disabled){background:#f5f3eb;border-color:#a0998a}
+.ta-action-btn:disabled{opacity:.45;cursor:not-allowed}
+.ta-info-1{background:#fdf3e7;border:1px solid #f0d3a8;border-radius:6px;padding:8px 12px;margin-bottom:6px;font-size:12px;color:#a16623}
+.ta-info-2{background:#f3f0fd;border:1px solid #d3c8f0;border-radius:6px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:#5a4ba1}
+.ta-controls{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:10px 12px;background:#fafaf6;border:1px solid #ece9df;border-radius:8px;margin-bottom:14px}
+.ta-filter-row,.ta-sort-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.ta-filter-lbl{font-size:11px;color:#888;font-weight:600;margin-right:4px}
+.ta-filter-btn,.ta-sort-btn{padding:4px 10px;border:1px solid #d0cdc0;background:#fff;border-radius:99px;font-size:11px;font-weight:600;color:#555;cursor:pointer;transition:all .12s}
+.ta-filter-btn:hover:not(:disabled),.ta-sort-btn:hover{background:#f0eee3;border-color:#a0998a}
+.ta-filter-btn.on,.ta-sort-btn.on{background:#185FA5;border-color:#185FA5;color:#fff}
+.ta-filter-btn:disabled{opacity:.45;cursor:not-allowed}
+.ta-summary{font-size:11px;color:#888;margin-bottom:10px}
+/* LEADING 배지 (강한 산업) */
+.tm-leading{font-size:9px;background:#fff8e1;color:#9a6e00;padding:1px 6px;border-radius:3px;font-weight:700;letter-spacing:.3px;flex-shrink:0;border:1px solid #f0d088}
+/* 상태 라벨 (추세 지속성 박스 안) */
+.tm-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.tm-status.st-strong{background:#e8f5e9;color:#1b5e20}
+.tm-status.st-forming{background:#e3f2fd;color:#0d47a1}
+.tm-status.st-weakening{background:#fff3e0;color:#e65100}
+.tm-status.st-temp{background:#fffde7;color:#a16623}
+.tm-status.st-weak{background:#ffebee;color:#c62828}
+.tm-status.st-peak{background:#f3e5f5;color:#6a1b9a}
 @media (max-width:768px){
-  .tm-cards-grid{grid-template-columns:1fr;gap:10px}
-  .tm-card{padding:12px}
-  .tm-metric-grid{grid-template-columns:repeat(4,1fr);gap:4px}
-  .tm-metric-cell{padding:5px 6px}
-  .tm-metric-lbl{font-size:9px}
-  .tm-metric-val{font-size:13px}
-  .tm-score{font-size:22px}
-  .tm-ind-name{font-size:12.5px;-webkit-line-clamp:2}
-  .tm-metric-row{font-size:9px;gap:6px}
-  .tm-trend{font-size:10px;gap:6px;padding:6px 8px}
-  .tm-stock-chip{font-size:10px;padding:2px 6px}
-  .tm-stocks{gap:3px}
+  .ta-header{margin-bottom:10px;padding-bottom:8px}
+  .ta-title{font-size:20px}
+  .ta-subtitle{font-size:12px}
+  .ta-actions{gap:4px}
+  .ta-action-btn{padding:5px 9px;font-size:11px}
+  .ta-info-1,.ta-info-2{font-size:11px;padding:7px 10px}
+  .ta-controls{padding:8px 10px;gap:8px}
+  .ta-filter-btn,.ta-sort-btn{padding:3px 8px;font-size:10px}
 }
 </style>
 </head>
@@ -1909,6 +1933,7 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
   <button class="top-tab" id="ttab-marketpulse" onclick="switchTopTab('marketpulse',this)">📊 Market Pulse</button>
   <button class="top-tab" id="ttab-sector"      onclick="switchTopTab('sector',this)">📈 섹터 분석</button>
   <button class="top-tab" id="ttab-etf"         onclick="switchTopTab('etf',this)">📊 섹터 ETF</button>
+  <button class="top-tab" id="ttab-themeanalysis" onclick="switchTopTab('themeanalysis',this)">🎯 테마 분석</button>
   <button class="top-tab" id="ttab-screener"    onclick="switchTopTab('screener',this)">🔍 스크리너</button>
   <button class="top-tab" id="ttab-rsmomentum"  onclick="switchTopTab('rsmomentum',this)">⚡ RS 모멘텀</button>
   <button class="top-tab" id="ttab-pattern"     onclick="switchTopTab('pattern',this)">🎯 패턴 감지</button>
@@ -4854,6 +4879,52 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     </div>
   </div>
 
+</div>
+
+<!-- ══ 테마 분석 탭 패널 (v2026-06-01 신규 / IBD Early Bird v3.0 정합) ══ -->
+<div class="top-panel" id="top-panel-themeanalysis">
+  <div style="max-width:1400px;margin:0 auto;padding:20px 16px">
+
+    <!-- 헤더 -->
+    <div class="ta-header">
+      <div>
+        <div class="ta-title">🎯 테마 분석</div>
+        <div class="ta-subtitle">자동 산업 분류 + 사용자 정의 테마 통합 강도 순위</div>
+      </div>
+      <div class="ta-actions">
+        <button class="ta-action-btn" disabled title="준비 중 — Stage 3에서 작업">+ 새 테마 만들기</button>
+        <button class="ta-action-btn" disabled title="준비 중">⬇ 내보내기</button>
+        <button class="ta-action-btn" disabled title="준비 중">⬆ 가져오기</button>
+      </div>
+    </div>
+
+    <!-- 안내 박스 -->
+    <div class="ta-info-1">📑 <b>1차 자동</b>: yfinance Industry 기반 (객관적 · 항상 최신)</div>
+    <div class="ta-info-2">🎯 <b>2차 사용자 정의</b>: "광섬유", "AI 인프라" 같은 시장 테마 (수동 정의 · localStorage 저장) <span style="color:#9b8de8">— 준비 중 (Stage 3)</span></div>
+
+    <!-- 컨트롤바: 표시 토글 + 정렬 옵션 -->
+    <div class="ta-controls">
+      <div class="ta-filter-row">
+        <span class="ta-filter-lbl">📌 표시:</span>
+        <button class="ta-filter-btn on" data-filter="all" onclick="setThemeFilter('all',this)">📊 전체 통합</button>
+        <button class="ta-filter-btn" data-filter="auto" onclick="setThemeFilter('auto',this)">🤖 자동 산업만</button>
+        <button class="ta-filter-btn" data-filter="user" disabled title="준비 중">🎯 사용자 정의만</button>
+      </div>
+      <div class="ta-sort-row">
+        <span class="ta-filter-lbl">↕️ 정렬:</span>
+        <button class="ta-sort-btn on" data-sort="score" onclick="setThemeSort('score',this)">RS Line 점수</button>
+        <button class="ta-sort-btn" data-sort="count" onclick="setThemeSort('count',this)">종목 수</button>
+        <button class="ta-sort-btn" data-sort="acc" onclick="setThemeSort('acc',this)">가속률</button>
+        <button class="ta-sort-btn" data-sort="w1" onclick="setThemeSort('w1',this)">Δ1주</button>
+      </div>
+    </div>
+
+    <!-- 카드 그리드 -->
+    <div id="ta-card-body">
+      <div class="db-placeholder">⏳ 데이터 로딩 중...<br><span style="font-size:11px;color:#aaa">JSON을 먼저 불러주세요</span></div>
+    </div>
+
+  </div>
 </div>
 
 <!-- ══ 스크리너 탭 패널 ══ -->
@@ -9885,6 +9956,12 @@ function switchTopTab(tab, el) {
       const guideDiv = document.getElementById('us-sub-guide');
       if (guideDiv) guideDiv.classList.remove('on');
     }
+    // [v2026-06-01 Stage1 D] 테마 분석 탭: 캐시된 데이터로 렌더
+    if (tab === 'themeanalysis') {
+      if (typeof renderThemeAnalysisTab === 'function' && window._lastSectorsData) {
+        try { renderThemeAnalysisTab(window._lastSectorsData); } catch(e) { console.warn('[테마 분석] 탭 진입 시 렌더 실패:', e); }
+      }
+    }
     // 스크롤 위치 초기화 (간단 버전)
     const resetScrolls = () => {
       panel.scrollLeft = 0;
@@ -10693,6 +10770,11 @@ function updateMarketPulse(raw, krRaw) {
     const dbSectors = buildSectorsForTab(stocksDB);
     renderDailyBriefingSector(dbSectors);
     renderDailyBriefingIndustry(dbSectors);
+    // [v2026-06-01 Stage1 D] 신규 탭 "테마 분석"용 데이터 캐싱 (탭 클릭 시 즉시 렌더)
+    window._lastSectorsData = dbSectors;
+    if (typeof renderThemeAnalysisTab === 'function') {
+      try { renderThemeAnalysisTab(dbSectors); } catch(e) { console.warn('[테마 분석] 초기 렌더 실패:', e); }
+    }
     // v12 Phase 5: ④ 진입 후보 — 단순 필터링 (Phase × RS Line 점수) — 전체 풀 사용
     renderDailyBriefingCandidates(stocks);
   }
@@ -10935,6 +11017,33 @@ function renderDailyBriefingIndustry(sectors) {
     const w1Color = w1 >= 0 ? '#1a8a4a' : '#c62828';
     // 점수 막대 색상 (RS Line 점수 기반)
     const barColor = isWeak ? '#c62828' : (score >= 70 ? '#1a8a4a' : score >= 50 ? '#185FA5' : '#a96e00');
+    // [v2026-06-01 Stage1-B] LEADING 배지 (RS Line 점수 65+ & 종목 3+ 동시 충족)
+    const isLeading = !isWeak && score >= 65 && ind.count >= 3;
+    // [v2026-06-01 Stage1-B] 상태 라벨 (추세 지속성 기반)
+    const leaderRatio = ind.count ? ind.leader_count / ind.count : 0;
+    let statusLabel = '', statusClass = '';
+    if (isWeak || score < 45) {
+      statusLabel = '🔴 약세';
+      statusClass = 'st-weak';
+    } else if (score >= 80 && leaderRatio >= 0.7 && w1 >= 1) {
+      statusLabel = '🟢 강세 견고';
+      statusClass = 'st-strong';
+    } else if (score >= 70 && leaderRatio >= 0.5) {
+      statusLabel = '🔵 형성중';
+      statusClass = 'st-forming';
+    } else if (score >= 60 && ind.count <= 2) {
+      statusLabel = '🟡 임시 (소표본)';
+      statusClass = 'st-temp';
+    } else if (w1 < -0.5 && score < 60) {
+      statusLabel = '🟠 약화';
+      statusClass = 'st-weakening';
+    } else if (score >= 60) {
+      statusLabel = '🔵 형성중';
+      statusClass = 'st-forming';
+    } else {
+      statusLabel = '⚪ 중립';
+      statusClass = 'st-temp';
+    }
     // [v2026-06-01 C단계] 종목 리스트 — 처음 15개 + 나머지는 토글로 펼침
     const VISIBLE = 15;
     const allShown = (ind.allStocks || []);
@@ -10947,6 +11056,7 @@ function renderDailyBriefingIndustry(sectors) {
         <div class="tm-card-head-l">
           <span class="tm-rank">#${rank}</span>
           <span class="tm-auto">AUTO</span>
+          ${isLeading ? `<span class="tm-leading" title="LEADING — RS Line 점수 65+ & 종목 3개+ 동시 충족 (강한 산업)">✓ LEADING</span>` : ''}
           ${ind.inStrongSector ? `<span class="tm-strong-sec" title="강세 섹터(${Math.round(ind.sectorRsLine)}) 소속 — 종목 수 적어도 우대 노출">🌟</span>` : ''}
           <span class="tm-ind-name">📊 ${ind.name}</span>
         </div>
@@ -10960,11 +11070,12 @@ function renderDailyBriefingIndustry(sectors) {
         </div>
       </div>
       <div class="tm-score-bar"><div class="tm-score-bar-fill" style="width:${Math.min(100,score)}%;background:${barColor}"></div></div>
-      <!-- 추세 지속성 (단순화 버전) -->
+      <!-- 추세 지속성 + 상태 라벨 -->
       <div class="tm-trend">
         <span>📈 추세 지속성</span>
         <span class="tm-trend-stat">L ${ind.leader_count}/${ind.count} (${ind.count?Math.round(ind.leader_count/ind.count*100):0}%)</span>
         <span class="tm-trend-stat">방향 ${w1 >= 0.5 ? '↗' : w1 <= -0.5 ? '↘' : '→'} (${w1Str})</span>
+        <span class="tm-status ${statusClass}" style="margin-left:auto">${statusLabel}</span>
       </div>
       <!-- 메트릭 2x2 그리드 -->
       <div class="tm-metric-grid">
@@ -11008,6 +11119,197 @@ function renderDailyBriefingIndustry(sectors) {
       <div style="margin-top:18px;font-size:12px;font-weight:700;color:#a13030;border-bottom:1px solid #f5cccc;padding-bottom:6px;margin-bottom:10px">🔴 약세 산업 (하위 ${weakBottom.length}개) · 진입 회피</div>
       <div class="tm-cards-grid">
         ${weakBottom.map((ind, i) => renderCard(ind, sorted.length - weakBottom.length + i + 1, true)).join('')}
+      </div>` : ''}
+  `;
+}
+
+// ═══ [v2026-06-01 Stage1 D] 신규 탭 "🎯 테마 분석" 렌더 함수 ═══
+// renderDailyBriefingIndustry와 비슷한 구조이나, 정렬/필터 옵션 + 더 많은 카드 표시
+window.themeAnalysisState = window.themeAnalysisState || {
+  filter: 'all',  // 'all' | 'auto' | 'user'
+  sort: 'score',  // 'score' | 'count' | 'acc' | 'w1'
+};
+// 정렬 핸들러 (전역 노출)
+window.setThemeSort = function(sort, btn) {
+  window.themeAnalysisState.sort = sort;
+  document.querySelectorAll('.ta-sort-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  // 다시 렌더
+  if (window._lastSectorsData) renderThemeAnalysisTab(window._lastSectorsData);
+};
+// 필터 핸들러 (전역 노출)
+window.setThemeFilter = function(filter, btn) {
+  window.themeAnalysisState.filter = filter;
+  document.querySelectorAll('.ta-filter-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  if (window._lastSectorsData) renderThemeAnalysisTab(window._lastSectorsData);
+};
+
+function renderThemeAnalysisTab(sectors) {
+  // sectors 인자가 없으면 캐시된 데이터 사용
+  if (!sectors && window._lastSectorsData) sectors = window._lastSectorsData;
+  if (sectors) window._lastSectorsData = sectors;
+  const body = document.getElementById('ta-card-body');
+  if (!body) return;
+  if (!sectors || sectors.length === 0) {
+    body.innerHTML = '<div class="db-placeholder">⏳ 데이터 로딩 중...<br><span style="font-size:11px;color:#aaa">JSON을 먼저 불러주세요</span></div>';
+    return;
+  }
+  const state = window.themeAnalysisState;
+  // 강세 섹터 set
+  const strongSectorNames = new Set();
+  sectors.forEach(sec => { if ((sec.avg_rs_line || 0) >= 75) strongSectorNames.add(sec.name); });
+  // 평탄화
+  const all = [];
+  sectors.forEach(sec => {
+    (sec.industries || []).forEach(ind => {
+      all.push({
+        ...ind,
+        sectorName: sec.name,
+        sectorRsLine: sec.avg_rs_line || 0,
+        inStrongSector: strongSectorNames.has(sec.name),
+        score: ind.avg_rs_line_score ?? ind.avg_rs ?? 0,
+      });
+    });
+  });
+  if (all.length === 0) {
+    body.innerHTML = '<div class="db-placeholder">⚠ 산업 데이터 없음</div>';
+    return;
+  }
+  // 필터: 강세 섹터 1+ / 일반 2+
+  const filtered = all.filter(ind => ind.inStrongSector ? ind.count >= 1 : ind.count >= 2);
+  // 정렬
+  const sortKey = state.sort;
+  const sorted = [...filtered].sort((a,b) => {
+    if (sortKey === 'count') return b.count - a.count;
+    if (sortKey === 'acc')   return (b.acc_ratio || 0) - (a.acc_ratio || 0);
+    if (sortKey === 'w1')    return (b.avg_w1 || 0) - (a.avg_w1 || 0);
+    return b.score - a.score;  // 기본: RS Line
+  });
+  // 상위 24개 강세 + 하위 6개 약세 (이 탭은 Daily Briefing보다 더 많이 표시)
+  const top = sorted.slice(0, Math.min(24, sorted.length));
+  const bottom = sorted.length > 30 ? sorted.slice(-6) : [];
+
+  // ── 종목 chip 헬퍼 (renderDailyBriefingIndustry와 동일 로직 재사용) ──
+  const phaseDot = (s) => {
+    const ph = s.phase || '';
+    if (ph === '4plus' || ph === '4' || ph === '5') return {emoji:'🟢'};
+    if (ph === '3') return {emoji:'🔵'};
+    if (ph === '2') return {emoji:'🟠'};
+    if (ph === '67' || ph === '01') return {emoji:'🔴'};
+    return {emoji:'⚪'};
+  };
+  const classBadge = (rsLine) => {
+    if (rsLine >= 70) return {label:'L', bg:'#e8f5e9', color:'#1b5e20'};
+    if (rsLine >= 41) return {label:'F', bg:'#fff8e1', color:'#a96e00'};
+    return {label:'Lg', bg:'#fce4ec', color:'#a14d6e'};
+  };
+  const stockChip = (s) => {
+    const rsLine = Math.round(s.rs_line_score || 0);
+    const dot = phaseDot(s);
+    const cls = classBadge(rsLine);
+    const tooltip = `${s.name || s.ticker} · IBD RS ${s.rs ?? '—'} / RS now ${s.rs_now ?? '—'} / Phase ${s.phase || '—'} · ${s.sector || ''}`.replace(/"/g,'&quot;');
+    return `<span class="tm-stock-chip" title="${tooltip}" onclick="openDetail('${s.ticker}',${safeStringify(s)},'us')">${dot.emoji} <b>${s.ticker}</b> <span class="tm-stock-score">${rsLine}</span> <span class="tm-stock-cls" style="background:${cls.bg};color:${cls.color}">${cls.label}</span></span>`;
+  };
+  const phaseRow = (counts) => {
+    const order = [['4plus','🟢','P4+'], ['4','🟢','P4'], ['5','🟢','P5'], ['3','🔵','P3'], ['2','🟠','P2'], ['67','🔴','P67'], ['01','🔴','P01']];
+    const items = order.filter(([k]) => counts[k] > 0)
+      .map(([k,emoji,lbl]) => `<span class="tm-phase-pill">${emoji}${lbl}:${counts[k]}</span>`);
+    return items.length ? items.join('') : '<span style="font-size:10px;color:#bbb">Phase 데이터 없음</span>';
+  };
+  // ── 카드 렌더 (renderDailyBriefingIndustry와 동일 로직) ──
+  const renderCard = (ind, rank, isWeak) => {
+    const score = Math.round(ind.score);
+    const ibdRs = Math.round(ind.avg_rs || 0);
+    const comp = Math.round(ind.avg_comp || 0);
+    const accRatio = ind.acc_ratio || 0;
+    const acc2Ratio = ind.acc2_ratio || 0;
+    const h52Ratio = ind.h52_ratio || 0;
+    const w1 = ind.avg_w1 || 0;
+    const w1Str = (w1 >= 0 ? '+' : '') + w1.toFixed(1);
+    const w1Color = w1 >= 0 ? '#1a8a4a' : '#c62828';
+    const barColor = isWeak ? '#c62828' : (score >= 70 ? '#1a8a4a' : score >= 50 ? '#185FA5' : '#a96e00');
+    const isLeading = !isWeak && score >= 65 && ind.count >= 3;
+    const leaderRatio = ind.count ? ind.leader_count / ind.count : 0;
+    let statusLabel = '', statusClass = '';
+    if (isWeak || score < 45) { statusLabel = '🔴 약세'; statusClass = 'st-weak'; }
+    else if (score >= 80 && leaderRatio >= 0.7 && w1 >= 1) { statusLabel = '🟢 강세 견고'; statusClass = 'st-strong'; }
+    else if (score >= 70 && leaderRatio >= 0.5) { statusLabel = '🔵 형성중'; statusClass = 'st-forming'; }
+    else if (score >= 60 && ind.count <= 2) { statusLabel = '🟡 임시 (소표본)'; statusClass = 'st-temp'; }
+    else if (w1 < -0.5 && score < 60) { statusLabel = '🟠 약화'; statusClass = 'st-weakening'; }
+    else if (score >= 60) { statusLabel = '🔵 형성중'; statusClass = 'st-forming'; }
+    else { statusLabel = '⚪ 중립'; statusClass = 'st-temp'; }
+    const VISIBLE = 15;
+    const allShown = (ind.allStocks || []);
+    const firstBatch = allShown.slice(0, VISIBLE);
+    const hiddenBatch = allShown.slice(VISIBLE);
+    const hiddenCount = hiddenBatch.length;
+    return `
+    <div class="tm-card ${isWeak ? 'tm-card-weak' : ''}">
+      <div class="tm-card-head">
+        <div class="tm-card-head-l">
+          <span class="tm-rank">#${rank}</span>
+          <span class="tm-auto">AUTO</span>
+          ${isLeading ? `<span class="tm-leading" title="LEADING — RS Line 65+ & 종목 3+ 동시 충족">✓ LEADING</span>` : ''}
+          ${ind.inStrongSector ? `<span class="tm-strong-sec" title="강세 섹터(${Math.round(ind.sectorRsLine)}) 소속">🌟</span>` : ''}
+          <span class="tm-ind-name">📊 ${ind.name}</span>
+        </div>
+        <div class="tm-card-head-r">
+          <span class="tm-score" style="color:${barColor}">${score}</span>
+          <div class="tm-metric-row">
+            <span title="가속률">🔥 ${accRatio}</span>
+            <span title="신고가율">📈 ${h52Ratio}</span>
+            <span title="1주 평균 변화율" style="color:${w1Color}">📊 ${w1Str}</span>
+          </div>
+        </div>
+      </div>
+      <div class="tm-score-bar"><div class="tm-score-bar-fill" style="width:${Math.min(100,score)}%;background:${barColor}"></div></div>
+      <div class="tm-trend">
+        <span>📈 추세 지속성</span>
+        <span class="tm-trend-stat">L ${ind.leader_count}/${ind.count} (${ind.count?Math.round(ind.leader_count/ind.count*100):0}%)</span>
+        <span class="tm-trend-stat">방향 ${w1 >= 0.5 ? '↗' : w1 <= -0.5 ? '↘' : '→'} (${w1Str})</span>
+        <span class="tm-status ${statusClass}" style="margin-left:auto">${statusLabel}</span>
+      </div>
+      <div class="tm-metric-grid">
+        <div class="tm-metric-cell"><div class="tm-metric-lbl">IBD RS</div><div class="tm-metric-val ${ibdRs>=80?'green':ibdRs>=60?'blue':ibdRs>=40?'amber':'red'}">${ibdRs}</div></div>
+        <div class="tm-metric-cell"><div class="tm-metric-lbl">Comp</div><div class="tm-metric-val ${comp>=80?'green':comp>=60?'blue':comp>=40?'amber':'red'}">${comp}</div></div>
+        <div class="tm-metric-cell"><div class="tm-metric-lbl">종목</div><div class="tm-metric-val">${ind.count}개</div></div>
+        <div class="tm-metric-cell"><div class="tm-metric-lbl">가속</div><div class="tm-metric-val ${acc2Ratio>=20?'green':acc2Ratio>=10?'blue':''}">${acc2Ratio}%</div></div>
+      </div>
+      <div class="tm-phase-row">${phaseRow(ind.phase_counts || {})}</div>
+      ${(ind.new_count > 0 || ind.warn_count > 0) ? `
+      <div class="tm-badge-row">
+        ${ind.new_count > 0 ? `<span class="tm-badge-new">🆕 ${ind.new_count}</span>` : ''}
+        ${ind.warn_count > 0 ? `<span class="tm-badge-warn">⚠️ ${ind.warn_count}</span>` : ''}
+      </div>` : ''}
+      <div class="tm-stocks-head">구성 종목 (${ind.count}) · 숫자 = RS Line 점수, 클릭 시 상세</div>
+      <div class="tm-stocks">
+        ${firstBatch.map(stockChip).join('')}
+        ${hiddenCount > 0 ? `<span class="tm-more-btn" onclick="this.parentElement.classList.toggle('expanded')">+${hiddenCount}개 더보기</span><span class="tm-stocks-hidden">${hiddenBatch.map(stockChip).join('')}</span>` : ''}
+      </div>
+      <div class="tm-class-row">
+        <span class="tm-class-pill tm-cls-L">L · ${ind.leader_count}</span>
+        <span class="tm-class-pill tm-cls-F">F · ${ind.follower_count}</span>
+        <span class="tm-class-pill tm-cls-Lg">Lg · ${ind.laggard_count}</span>
+        <span class="tm-sector-tag">섹터: ${ind.sectorName}</span>
+      </div>
+    </div>`;
+  };
+  // 통계
+  const leadingCount = top.filter(ind => ind.score >= 65 && ind.count >= 3).length;
+  body.innerHTML = `
+    <div class="ta-summary">
+      📊 총 <b>${filtered.length}개 테마</b> (자동 ${filtered.length} · 정렬: ${sortKey === 'score' ? 'RS Line 점수' : sortKey === 'count' ? '종목 수' : sortKey === 'acc' ? '가속률' : 'Δ1주'}) 
+      · ✓ LEADING: <b>${leadingCount}개</b> 
+      · 🌟 강세 섹터 우대: <b>${filtered.filter(i => i.inStrongSector).length}개</b>
+    </div>
+    <div class="tm-cards-grid">
+      ${top.map((ind, i) => renderCard(ind, i+1, false)).join('')}
+    </div>
+    ${bottom.length ? `
+      <div style="margin-top:24px;font-size:13px;font-weight:700;color:#a13030;border-bottom:1px solid #f5cccc;padding-bottom:6px;margin-bottom:10px">🔴 약세 테마 (하위 ${bottom.length}개) · 진입 회피</div>
+      <div class="tm-cards-grid">
+        ${bottom.map((ind, i) => renderCard(ind, sorted.length - bottom.length + i + 1, true)).join('')}
       </div>` : ''}
   `;
 }
@@ -12380,7 +12682,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-06-01-cards-tuned-v2-strongsec] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-06-01-stage1-theme-tab+leading+status] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
