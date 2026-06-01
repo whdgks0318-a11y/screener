@@ -111,9 +111,9 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 
 /* v11-fix v3: 섹터 분석 탭 시장 토글이 fixed 헤더(top-sticky-wrap)와 겹치는 문제 수정.
    v2의 z-index:250은 메인 탭을 가리는 부작용 → 제거.
-   대신 margin-top: var(--hdr-h)로 시장 토글을 헤더 아래 영역으로 이동.
-   --hdr-h 는 페이지가 측정한 fixed 헤더 실측 높이 (반응형 자동 대응). */
-#top-panel-sector .market-tabs{margin-top:var(--hdr-h,80px)}
+   [v2026-06-01 fix] 빈 공간 축소: var(--hdr-h)는 다른 탭과 정합성 맞음. 
+   하지만 섹터 탭만 다른 탭과 달리 별도 margin이 필요 없음 → 12px로 축소 */
+#top-panel-sector .market-tabs{margin-top:12px}
 
 /* ═══ v12: Daily Briefing 탭 신규 (6 섹션 Top-Down 골격) ═══ */
 .db-section{background:#fff;border:1px solid #e0dfd8;border-radius:10px;margin-bottom:14px;overflow:hidden}
@@ -10958,6 +10958,27 @@ function renderDailyBriefingSector(sectors) {
   const C_NEUTRAL = {bg:'#fff8e6', text:'#854F0B', border:'#e8c97f'};
   const C_WEAK    = {bg:'#fff0f0', text:'#a13030', border:'#e8a0a0'};
 
+  // [v2026-06-01] 1위 섹터의 모든 산업 phase_counts 합산
+  const top1PhaseCounts = {};
+  (top.industries || []).forEach(ind => {
+    Object.entries(ind.phase_counts || {}).forEach(([k, v]) => {
+      top1PhaseCounts[k] = (top1PhaseCounts[k] || 0) + v;
+    });
+  });
+  const phaseOrder = [
+    ['4plus', '🟢 4+', '#1F5A09', '#D1F2C4', '최상위'],
+    ['4',     '🟢 4',  '#1a8a4a', '#eaf6ee', '돌파임박'],
+    ['5',     '🟢 5',  '#3B6D11', '#F0F9ED', '본격리더'],
+    ['3',     '🔵 3',  '#185FA5', '#E6F1FB', '베이스성숙'],
+    ['2',     '🟠 2',  '#a96e00', '#FAEEDA', '바닥매집'],
+    ['67',    '🔴 67', '#a13030', '#FFEBEB', '주변회피'],
+    ['01',    '🔴 01', '#854F0B', '#FFF4E6', '반등의심'],
+  ];
+  const phaseRowHTML = phaseOrder
+    .filter(([k]) => top1PhaseCounts[k] > 0)
+    .map(([k, lbl, color, bg, name]) => `<span style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;background:${bg};color:${color};border-radius:99px;font-size:11px;font-weight:700" title="${name} (Phase ${k})">${lbl} <b>${top1PhaseCounts[k]}</b></span>`)
+    .join('');
+
   body.innerHTML = `
     <!-- 풀 안내 (v2026-05-11: IBD early bird 정합) -->
     <div style="font-size:10px;color:#888;margin-bottom:8px;text-align:right;padding-right:2px">
@@ -10976,6 +10997,12 @@ function renderDailyBriefingSector(sectors) {
           <div style="font-size:32px;font-weight:700;color:#1a8a4a;line-height:1">${Math.round(top.avg_rs_line || 0)}</div>
         </div>
       </div>
+      ${phaseRowHTML ? `
+      <!-- [v2026-06-01] Phase 트렌드 카운터 -->
+      <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #b6d8a3">
+        <div style="font-size:10px;color:#73726c;font-weight:600;margin-bottom:6px">📊 Phase 트렌드 분포 (${top.count}종목)</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">${phaseRowHTML}</div>
+      </div>` : ''}
     </div>
 
     <!-- 강세 섹터 (1위 제외 나머지) -->
@@ -12893,7 +12920,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-06-01-guide-nowrap-removed-all] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-06-01-v27-sector-gap-phase-counter] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
