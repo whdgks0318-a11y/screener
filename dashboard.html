@@ -1733,6 +1733,8 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .tm-card-head-r{text-align:right;min-width:90px;flex-shrink:0}
 .tm-rank{font-size:11px;color:#888;font-weight:600;flex-shrink:0}
 .tm-auto{font-size:9px;background:#e8eef5;color:#1a56db;padding:1px 5px;border-radius:3px;font-weight:700;letter-spacing:.3px;flex-shrink:0}
+.tm-strong-sec{font-size:11px;flex-shrink:0;cursor:help;animation:tm-twinkle 2.5s ease-in-out infinite}
+@keyframes tm-twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.9)}}
 /* [v2026-06-01 C단계] 긴 산업명: 단어 단위 줄바꿈, 최대 2줄 line-clamp */
 .tm-ind-name{font-size:13.5px;font-weight:700;color:#1a1a1a;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all;overflow-wrap:break-word;min-width:0;flex:1 1 auto}
 .tm-score{font-size:24px;font-weight:800;line-height:1;display:block}
@@ -10858,12 +10860,19 @@ function renderDailyBriefingIndustry(sectors) {
     return;
   }
   // 모든 산업 평탄화
+  // [v2026-06-01 cards-tuned-v2] 강세 섹터(avg_rs_line >= 75)의 산업은 종목 수 적어도 우대 노출
+  const strongSectorNames = new Set();
+  sectors.forEach(sec => {
+    if ((sec.avg_rs_line || 0) >= 75) strongSectorNames.add(sec.name);
+  });
   const all = [];
   sectors.forEach(sec => {
     (sec.industries || []).forEach(ind => {
       all.push({
         ...ind,
         sectorName: sec.name,
+        sectorRsLine: sec.avg_rs_line || 0,
+        inStrongSector: strongSectorNames.has(sec.name),
         score: ind.avg_rs_line_score ?? ind.avg_rs ?? 0,
       });
     });
@@ -10872,10 +10881,12 @@ function renderDailyBriefingIndustry(sectors) {
     body.innerHTML = '<div class="db-placeholder">⚠ 산업 데이터 없음<br><span style="font-size:11px;color:#aaa">(KR 시장은 industry 매핑이 별도 작업으로 예정 — 핸드오프 이슈 A 참조)</span></div>';
     return;
   }
-  // RS Line 점수 정렬 (큰 풀에서는 4종목 이상만 의미 있음)
-  const filtered = all.filter(ind => ind.count >= 3);
+  // [v2026-06-01 A+B] 필터링 규칙
+  //   - 일반 산업: 2종목 이상 (기존 3종목에서 완화)
+  //   - 강세 섹터(75+) 소속 산업: 1종목이라도 표시 (Utilities, Basic Materials 같은 작은 섹터 우대)
+  const filtered = all.filter(ind => ind.inStrongSector ? ind.count >= 1 : ind.count >= 2);
   const sorted = [...filtered].sort((a,b) => b.score - a.score);
-  // [v2026-06-01 C단계] 상위 12개 강세 / 하위 5개 약세 (이전 8개 → 12개로 확장)
+  // 상위 12개 강세 / 하위 5개 약세
   const strongTop = sorted.slice(0, Math.min(12, sorted.length));
   const weakBottom = sorted.length > 17 ? sorted.slice(-5) : [];
 
@@ -10936,6 +10947,7 @@ function renderDailyBriefingIndustry(sectors) {
         <div class="tm-card-head-l">
           <span class="tm-rank">#${rank}</span>
           <span class="tm-auto">AUTO</span>
+          ${ind.inStrongSector ? `<span class="tm-strong-sec" title="강세 섹터(${Math.round(ind.sectorRsLine)}) 소속 — 종목 수 적어도 우대 노출">🌟</span>` : ''}
           <span class="tm-ind-name">📊 ${ind.name}</span>
         </div>
         <div class="tm-card-head-r">
@@ -10987,7 +10999,7 @@ function renderDailyBriefingIndustry(sectors) {
 
   body.innerHTML = `
     <div style="font-size:11px;color:#888;margin-bottom:8px;text-align:right">
-      📊 RS Rating 70+ 풀 · 산업당 3종목 이상만 표시 (전체 ${all.length}개 중 ${sorted.length}개 분석)
+      📊 RS Rating 70+ 풀 · 산업당 2종목+ 표시 (강세 섹터 75+는 1종목+ 우대) · 전체 ${all.length}개 중 ${sorted.length}개 분석
     </div>
     <div class="tm-cards-grid">
       ${strongTop.map((ind, i) => renderCard(ind, i+1, false)).join('')}
@@ -12368,7 +12380,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-06-01-cards-tuned] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-06-01-cards-tuned-v2-strongsec] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
