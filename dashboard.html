@@ -1809,6 +1809,7 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .tm-status.st-temp{background:#fffde7;color:#a16623}
 .tm-status.st-weak{background:#ffebee;color:#c62828}
 .tm-status.st-peak{background:#f3e5f5;color:#6a1b9a}
+/* ═══ [v2026-06-01 워치리스트 기능 활성화] ═══ */
 @media (max-width:768px){
   .ta-header{margin-bottom:10px;padding-bottom:8px}
   .ta-title{font-size:20px}
@@ -1818,7 +1819,28 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
   .ta-info-1,.ta-info-2{font-size:11px;padding:7px 10px}
   .ta-controls{padding:8px 10px;gap:8px}
   .ta-filter-btn,.ta-sort-btn{padding:3px 8px;font-size:10px}
+  /* 워치리스트 종목 목록 모바일 */
+  .wl-list{max-height:200px}
+  .wl-item{font-size:10px;padding:4px 6px}
 }
+/* 종목 모달 ★ 토글 버튼 */
+.dp-watch-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border:1.5px solid #ddd;background:#fff;border-radius:99px;font-size:12px;font-weight:700;color:#888;cursor:pointer;transition:all .15s;margin-left:8px;user-select:none}
+.dp-watch-btn:hover{border-color:#f6b800;color:#a16623;background:#fffdf5}
+.dp-watch-btn.on{background:#fff8e1;border-color:#f6b800;color:#9a6e00}
+.dp-watch-btn.on:hover{background:#fff3c4}
+.dp-watch-btn .star-icon{font-size:14px}
+/* 사이드바 워치리스트 목록 */
+.wl-list{padding:4px 12px 8px;display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto}
+.wl-item{display:flex;align-items:center;gap:6px;padding:5px 8px;background:#fff;border:1px solid #ece9df;border-radius:6px;font-size:11px;cursor:pointer;transition:all .12s}
+.wl-item:hover{background:#fffdf5;border-color:#f6b800}
+.wl-item-ticker{font-family:'Courier New',monospace;font-weight:700;color:#1a1a1a;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.wl-item-rs{font-size:10px;font-weight:700;color:#1a5c1a;flex-shrink:0}
+.wl-item-phase{font-size:9px;color:#888;flex-shrink:0;padding:1px 5px;background:#f5f3eb;border-radius:99px}
+.wl-item-remove{font-size:13px;color:#c66;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0;opacity:0.5}
+.wl-item-remove:hover{opacity:1;color:#c62828}
+.wl-empty{padding:8px 12px;font-size:10px;color:#aaa;text-align:center;font-style:italic}
+.wl-clear-btn{margin:6px 12px 2px;padding:4px 8px;font-size:10px;background:#fff;border:1px dashed #c66;color:#c66;border-radius:4px;cursor:pointer;width:calc(100% - 24px)}
+.wl-clear-btn:hover{background:#fff5f5;border-style:solid}
 </style>
 </head>
 <body>
@@ -1882,15 +1904,16 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
     <div class="phase-dist" id="mp-phase-dist"></div>
   </div>
 
-  <!-- WATCHLIST -->
+  <!-- WATCHLIST (v2026-06-01 기능 활성화) -->
   <div class="mp-section">
     <div class="mp-section-title" style="display:flex;align-items:center;justify-content:space-between">
       <span>★ WATCHLIST</span>
-      <span class="mp-val" id="mp-wl-count" style="font-size:11px">0</span>
+      <span class="mp-val amber" id="mp-wl-count" style="font-size:11px">0</span>
     </div>
-    <div style="padding:2px 12px 4px;font-size:10px;color:#aaa;display:flex;gap:8px">
-      <span id="mp-wl-hint">종목 행의 ★ 클릭</span>
+    <div id="mp-wl-list-wrap">
+      <div class="wl-empty" id="mp-wl-empty">종목 모달의 ☆ 버튼으로 추가</div>
     </div>
+    <button class="wl-clear-btn" id="mp-wl-clear" onclick="clearWatchlist()" style="display:none">🗑 전체 비우기</button>
   </div>
 
   <!-- 편입 이력 -->
@@ -4671,10 +4694,11 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 <div class="detail-overlay" id="detail-overlay" onclick="closeDetail()"></div>
 <div class="detail-panel" id="detail-panel">
   <div class="dp-header">
-    <div>
-      <div style="display:flex;align-items:center;gap:10px">
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <div class="dp-ticker" id="dp-ticker">—</div>
         <div id="dp-badges" class="dp-badges"></div>
+        <button class="dp-watch-btn" id="dp-watch-btn" onclick="toggleWatchlistFromModal()" title="워치리스트에 추가/제거 (Ctrl+W)"><span class="star-icon">☆</span><span id="dp-watch-text">관심종목</span></button>
       </div>
       <div class="dp-name" id="dp-name">—</div>
       <div class="dp-price-row"><span class="dp-price" id="dp-price">—</span><span class="dp-chg" id="dp-chg"></span></div>
@@ -11480,6 +11504,8 @@ function ingestUS(raw) {
   renderUSMomentum();
   renderUSPatterns();
   renderUSSectors();
+  // [v2026-06-01] 워치리스트 사이드바 갱신 (RS Line 점수 / Phase 정보 표시)
+  try { renderWatchlistSidebar(); } catch(e) { console.warn('[워치리스트] 갱신 실패:', e); }
 }
 
 function ingestKR(raw) {
@@ -11670,6 +11696,127 @@ function doExport(mkt) {
 }
 
 // ════════════════════════════════════════════════════════
+// 13.5. 워치리스트 (v2026-06-01 신규 활성화)
+// ════════════════════════════════════════════════════════
+const WATCHLIST_KEY = 'trendpilot_watchlist';
+
+function getWatchlist() {
+  try {
+    const raw = localStorage.getItem(WATCHLIST_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function setWatchlist(arr) {
+  try {
+    localStorage.setItem(WATCHLIST_KEY, JSON.stringify(arr));
+  } catch(e) { console.warn('[워치리스트] 저장 실패:', e); }
+}
+
+function isInWatchlist(ticker) {
+  return getWatchlist().includes(ticker);
+}
+
+// 워치리스트 토글 (어디서든 호출 가능)
+function toggleWatchlist(ticker) {
+  if (!ticker) return;
+  let wl = getWatchlist();
+  const idx = wl.indexOf(ticker);
+  if (idx >= 0) {
+    wl.splice(idx, 1);
+  } else {
+    wl.push(ticker);
+  }
+  setWatchlist(wl);
+  renderWatchlistSidebar();
+  updateWatchlistModalButton(ticker);
+}
+
+// 종목 모달의 ★ 버튼에서 호출
+function toggleWatchlistFromModal() {
+  const tickerEl = document.getElementById('dp-ticker');
+  if (!tickerEl) return;
+  const ticker = tickerEl.textContent.trim();
+  if (ticker && ticker !== '—') toggleWatchlist(ticker);
+}
+
+// 종목 모달의 ★ 버튼 표시 갱신
+function updateWatchlistModalButton(ticker) {
+  const btn = document.getElementById('dp-watch-btn');
+  if (!btn) return;
+  const curTicker = (document.getElementById('dp-ticker') || {}).textContent || '';
+  if (!ticker || curTicker.trim() === ticker) {
+    const isIn = isInWatchlist(curTicker.trim());
+    btn.classList.toggle('on', isIn);
+    btn.querySelector('.star-icon').textContent = isIn ? '★' : '☆';
+    btn.querySelector('#dp-watch-text').textContent = isIn ? '관심종목 ✓' : '관심종목';
+  }
+}
+
+// 전체 비우기
+function clearWatchlist() {
+  if (!confirm('워치리스트의 모든 종목을 제거할까요?')) return;
+  setWatchlist([]);
+  renderWatchlistSidebar();
+  // 모달이 열려 있으면 버튼도 갱신
+  updateWatchlistModalButton();
+}
+
+// 사이드바 워치리스트 렌더
+function renderWatchlistSidebar() {
+  const wl = getWatchlist();
+  const countEl = document.getElementById('mp-wl-count');
+  const wrapEl = document.getElementById('mp-wl-list-wrap');
+  const clearEl = document.getElementById('mp-wl-clear');
+  if (countEl) countEl.textContent = wl.length;
+  if (!wrapEl) return;
+  if (wl.length === 0) {
+    wrapEl.innerHTML = '<div class="wl-empty" id="mp-wl-empty">종목 모달의 ☆ 버튼으로 추가</div>';
+    if (clearEl) clearEl.style.display = 'none';
+    return;
+  }
+  if (clearEl) clearEl.style.display = '';
+  // 현재 로드된 종목 데이터에서 정보 가져오기
+  const allStocks = (window.US && window.US.data) ? window.US.data : [];
+  const krStocks = (window.KR && window.KR.data) ? window.KR.data : [];
+  const dataMap = new Map();
+  [...allStocks, ...krStocks].forEach(s => { if (s && s.ticker) dataMap.set(s.ticker, s); });
+  // 추가 순서(최신 추가가 위)로 표시
+  const items = [...wl].reverse().map(ticker => {
+    const s = dataMap.get(ticker);
+    if (!s) {
+      return `<div class="wl-item" onclick="openDetailByTicker('${ticker}')" title="${ticker} (데이터 없음)">
+        <span class="wl-item-ticker">${ticker}</span>
+        <span style="font-size:9px;color:#aaa">데이터 ✕</span>
+        <span class="wl-item-remove" onclick="event.stopPropagation();toggleWatchlist('${ticker}')" title="제거">✕</span>
+      </div>`;
+    }
+    const rsLine = Math.round(s.rs_line_score || 0);
+    const phase = s.phase || '—';
+    return `<div class="wl-item" onclick="openDetail('${ticker}',${safeStringify(s)},'us')" title="클릭 → 종목 상세">
+      <span class="wl-item-ticker">${ticker}</span>
+      <span class="wl-item-rs">${rsLine}</span>
+      <span class="wl-item-phase">P${phase}</span>
+      <span class="wl-item-remove" onclick="event.stopPropagation();toggleWatchlist('${ticker}')" title="제거">✕</span>
+    </div>`;
+  }).join('');
+  wrapEl.innerHTML = `<div class="wl-list">${items}</div>`;
+}
+
+// 티커만 알 때 모달 열기 (fallback)
+function openDetailByTicker(ticker) {
+  const allStocks = (window.US && window.US.data) ? window.US.data : [];
+  const krStocks = (window.KR && window.KR.data) ? window.KR.data : [];
+  const s = [...allStocks, ...krStocks].find(x => x && x.ticker === ticker);
+  if (s) {
+    const mkt = s.market === 'KR' ? 'kr' : 'us';
+    openDetail(ticker, s, mkt);
+  } else {
+    alert(`${ticker} 데이터를 찾을 수 없어요. JSON을 먼저 불러주세요.`);
+  }
+}
+
+// ════════════════════════════════════════════════════════
 // 14. 종목 상세 패널
 // ════════════════════════════════════════════════════════
 
@@ -11693,6 +11840,8 @@ function openDetail(ticker, s, mkt) {
   else if (s.acc)  badges.push('<span class="dp-badge" style="background:#FAEEDA;color:#633806">⚡ 가속중</span>');
   const badgeEl = document.getElementById('dp-badges');
   if (badgeEl) badgeEl.innerHTML = badges.join('');
+  // [v2026-06-01] 모달 열 때 ★ 워치리스트 버튼 상태 갱신
+  updateWatchlistModalButton(ticker);
   const rs = s.rs || s.rs_score || 0;
   const rsEl = document.getElementById('dp-rs');
   if (rsEl) { rsEl.textContent = rs; rsEl.className = 'dp-item-val '+(rs>=90?'green':rs>=75?'blue':rs>=50?'amber':'red'); }
@@ -12688,7 +12837,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-06-01-stage1-fix-mobile-overflow] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-06-01-watchlist-active] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
@@ -12706,6 +12855,14 @@ function exportEtf() {
   }
   window.addEventListener('load', scheduleAll);
   window.addEventListener('resize', updateHeight, {passive:true});
+  // [v2026-06-01] 워치리스트 초기 렌더 (페이지 로드 시 사이드바 표시)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      try { renderWatchlistSidebar(); } catch(e) { console.warn('[워치리스트] 초기 렌더 실패:', e); }
+    });
+  } else {
+    try { renderWatchlistSidebar(); } catch(e) { console.warn('[워치리스트] 초기 렌더 실패:', e); }
+  }
   // 탭 전환 시에도 재측정 (전환 후 줄바꿈이 바뀔 수 있음)
   document.addEventListener('click', (e) => {
     if (e.target.closest && e.target.closest('.top-tab,.hbtn')) {
