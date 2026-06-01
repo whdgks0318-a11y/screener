@@ -1728,14 +1728,15 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .tm-card{background:#fff;border:1px solid #e0e0d8;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);transition:box-shadow .15s}
 .tm-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08)}
 .tm-card-weak{background:#fff8f8;border-color:#f5d4d4}
-.tm-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.tm-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px}
 .tm-card-head-l{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;flex:1}
-.tm-card-head-r{text-align:right;min-width:90px}
-.tm-rank{font-size:11px;color:#888;font-weight:600}
-.tm-auto{font-size:9px;background:#e8eef5;color:#1a56db;padding:1px 5px;border-radius:3px;font-weight:700;letter-spacing:.3px}
-.tm-ind-name{font-size:14px;font-weight:700;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis}
+.tm-card-head-r{text-align:right;min-width:90px;flex-shrink:0}
+.tm-rank{font-size:11px;color:#888;font-weight:600;flex-shrink:0}
+.tm-auto{font-size:9px;background:#e8eef5;color:#1a56db;padding:1px 5px;border-radius:3px;font-weight:700;letter-spacing:.3px;flex-shrink:0}
+/* [v2026-06-01 C단계] 긴 산업명: 단어 단위 줄바꿈, 최대 2줄 line-clamp */
+.tm-ind-name{font-size:13.5px;font-weight:700;color:#1a1a1a;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all;overflow-wrap:break-word;min-width:0;flex:1 1 auto}
 .tm-score{font-size:24px;font-weight:800;line-height:1;display:block}
-.tm-metric-row{display:flex;gap:8px;font-size:10px;color:#666;margin-top:3px;justify-content:flex-end}
+.tm-metric-row{display:flex;gap:8px;font-size:10px;color:#666;margin-top:3px;justify-content:flex-end;white-space:nowrap}
 .tm-score-bar{height:5px;background:#f0efea;border-radius:99px;overflow:hidden;margin-bottom:10px}
 .tm-score-bar-fill{height:100%;border-radius:99px;transition:width .3s}
 .tm-trend{display:flex;gap:10px;align-items:center;padding:7px 10px;background:#fafaf6;border:1px solid #ece9df;border-radius:6px;font-size:11px;color:#555;margin-bottom:10px;flex-wrap:wrap}
@@ -1755,6 +1756,12 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .tm-badge-warn{font-size:10px;background:#fce4ec;color:#a14d6e;padding:2px 7px;border-radius:4px;font-weight:700;border:1px solid #f8bbd0}
 .tm-stocks-head{font-size:10px;color:#888;margin-bottom:6px;border-top:1px dashed #e8e6dc;padding-top:8px}
 .tm-stocks{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+/* [v2026-06-01 C단계] 종목 chip 토글 — 숨김 영역과 더보기 버튼 */
+.tm-stocks-hidden{display:none;flex-wrap:wrap;gap:4px;width:100%}
+.tm-stocks.expanded .tm-stocks-hidden{display:flex}
+.tm-stocks.expanded .tm-more-btn{display:none}
+.tm-more-btn{display:inline-flex;align-items:center;padding:3px 9px;background:#f0f4ff;border:1px dashed #b0c4ed;border-radius:99px;font-size:10px;color:#1a56db;cursor:pointer;font-weight:600;transition:background .12s}
+.tm-more-btn:hover{background:#e0eaff;border-style:solid}
 .tm-stock-chip{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;background:#fff;border:1px solid #e0e0d8;border-radius:99px;font-size:11px;cursor:pointer;transition:all .12s;font-family:'Courier New',monospace}
 .tm-stock-chip:hover{background:#f5f8ff;border-color:#1a56db;transform:translateY(-1px)}
 .tm-stock-chip b{font-weight:700;color:#1a1a1a}
@@ -1767,10 +1774,18 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f5f5f0;col
 .tm-cls-Lg{background:#fce4ec;color:#a14d6e}
 .tm-sector-tag{color:#888;font-size:10px;margin-left:auto}
 @media (max-width:768px){
-  .tm-cards-grid{grid-template-columns:1fr}
-  .tm-metric-grid{grid-template-columns:repeat(2,1fr)}
+  .tm-cards-grid{grid-template-columns:1fr;gap:10px}
+  .tm-card{padding:12px}
+  .tm-metric-grid{grid-template-columns:repeat(4,1fr);gap:4px}
+  .tm-metric-cell{padding:5px 6px}
+  .tm-metric-lbl{font-size:9px}
+  .tm-metric-val{font-size:13px}
   .tm-score{font-size:22px}
-  .tm-ind-name{font-size:13px}
+  .tm-ind-name{font-size:12.5px;-webkit-line-clamp:2}
+  .tm-metric-row{font-size:9px;gap:6px}
+  .tm-trend{font-size:10px;gap:6px;padding:6px 8px}
+  .tm-stock-chip{font-size:10px;padding:2px 6px}
+  .tm-stocks{gap:3px}
 }
 </style>
 </head>
@@ -10860,9 +10875,9 @@ function renderDailyBriefingIndustry(sectors) {
   // RS Line 점수 정렬 (큰 풀에서는 4종목 이상만 의미 있음)
   const filtered = all.filter(ind => ind.count >= 3);
   const sorted = [...filtered].sort((a,b) => b.score - a.score);
-  // 상위 8개 강세 / 하위 5개 약세
-  const strongTop = sorted.slice(0, Math.min(8, sorted.length));
-  const weakBottom = sorted.length > 13 ? sorted.slice(-5) : [];
+  // [v2026-06-01 C단계] 상위 12개 강세 / 하위 5개 약세 (이전 8개 → 12개로 확장)
+  const strongTop = sorted.slice(0, Math.min(12, sorted.length));
+  const weakBottom = sorted.length > 17 ? sorted.slice(-5) : [];
 
   // ── 종목 chip 헬퍼 (색상 동그라미 + 분류 배지) ──
   // 색상: Phase 기반 — 🟢 강세(4+/4/5) · 🔵 베이스(3) · 🟠 매집(2) · 🔴 회피(67/01)
@@ -10909,9 +10924,12 @@ function renderDailyBriefingIndustry(sectors) {
     const w1Color = w1 >= 0 ? '#1a8a4a' : '#c62828';
     // 점수 막대 색상 (RS Line 점수 기반)
     const barColor = isWeak ? '#c62828' : (score >= 70 ? '#1a8a4a' : score >= 50 ? '#185FA5' : '#a96e00');
-    // 종목 리스트 — Top 20만 표시 (너무 많으면 가독성 떨어짐)
-    const stocksToShow = (ind.allStocks || []).slice(0, 20);
-    const moreCount = (ind.allStocks || []).length - stocksToShow.length;
+    // [v2026-06-01 C단계] 종목 리스트 — 처음 15개 + 나머지는 토글로 펼침
+    const VISIBLE = 15;
+    const allShown = (ind.allStocks || []);
+    const firstBatch = allShown.slice(0, VISIBLE);
+    const hiddenBatch = allShown.slice(VISIBLE);
+    const hiddenCount = hiddenBatch.length;
     return `
     <div class="tm-card ${isWeak ? 'tm-card-weak' : ''}">
       <div class="tm-card-head">
@@ -10951,9 +10969,12 @@ function renderDailyBriefingIndustry(sectors) {
         ${ind.new_count > 0 ? `<span class="tm-badge-new">🆕 ${ind.new_count}</span>` : ''}
         ${ind.warn_count > 0 ? `<span class="tm-badge-warn">⚠️ ${ind.warn_count}</span>` : ''}
       </div>` : ''}
-      <!-- 구성 종목 리스트 -->
-      <div class="tm-stocks-head">구성 종목 (${ind.count}) · 숫자 = RS Line 점수, 클릭 시 상세${moreCount > 0 ? ` · +${moreCount}개 더 있음` : ''}</div>
-      <div class="tm-stocks">${stocksToShow.map(stockChip).join('')}</div>
+      <!-- 구성 종목 리스트 (15개 + 토글로 펼침) -->
+      <div class="tm-stocks-head">구성 종목 (${ind.count}) · 숫자 = RS Line 점수, 클릭 시 상세</div>
+      <div class="tm-stocks">
+        ${firstBatch.map(stockChip).join('')}
+        ${hiddenCount > 0 ? `<span class="tm-more-btn" onclick="this.parentElement.classList.toggle('expanded')">+${hiddenCount}개 더보기</span><span class="tm-stocks-hidden">${hiddenBatch.map(stockChip).join('')}</span>` : ''}
+      </div>
       <!-- 분류 카운트 -->
       <div class="tm-class-row">
         <span class="tm-class-pill tm-cls-L">L · ${ind.leader_count}</span>
@@ -12347,7 +12368,7 @@ function exportEtf() {
         box.style.cssText='position:fixed;bottom:10px;right:10px;z-index:9999;background:#000;color:#0f0;padding:6px 10px;font:11px monospace;border-radius:4px;pointer-events:none';
         document.body.appendChild(box);
       }
-      box.textContent = `[v2026-05-30-theme-cards-v2] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
+      box.textContent = `[v2026-06-01-cards-tuned] --hdr-h=${h}px (실측 wrap=${wrap.offsetHeight}px + 여유 ${padding}px ${isMobile?'M':'D'}) ${new Date().toLocaleTimeString()}`;
     }
   }
   // 여러 타이밍에서 측정 (late-layout 대비)
